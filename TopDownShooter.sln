@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TopDownShooter", "TopDownShooter.csproj", "{429252FE-1BC3-4955-AFFD-257A6814A212}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoonTools.ECS", "..\MoonTools.ECS\MoonTools.ECS.csproj", "{C988184A-747C-4E4C-9E21-14E53400F06F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flam", "..\Flam\Flam.csproj", "{8D2F75A9-7117-4FF1-BEE8-3439C50366E2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{429252FE-1BC3-4955-AFFD-257A6814A212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429252FE-1BC3-4955-AFFD-257A6814A212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429252FE-1BC3-4955-AFFD-257A6814A212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429252FE-1BC3-4955-AFFD-257A6814A212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C988184A-747C-4E4C-9E21-14E53400F06F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C988184A-747C-4E4C-9E21-14E53400F06F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C988184A-747C-4E4C-9E21-14E53400F06F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C988184A-747C-4E4C-9E21-14E53400F06F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D2F75A9-7117-4FF1-BEE8-3439C50366E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D2F75A9-7117-4FF1-BEE8-3439C50366E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D2F75A9-7117-4FF1-BEE8-3439C50366E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D2F75A9-7117-4FF1-BEE8-3439C50366E2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
