@@ -2,12 +2,14 @@
 using MoonTools.ECS;
 using TopDownShooter.Components;
 using TopDownShooter.Messages;
+using TopDownShooter.Utility;
 
 namespace TopDownShooter.Systems;
 
 public class CollisionBehaviour : MoonTools.ECS.System
 {
     private readonly Filter _playerFilter;
+    private readonly Filter _bullterFilter;
     private readonly Filter _basicEnemyFilter;
 
 
@@ -22,6 +24,12 @@ public class CollisionBehaviour : MoonTools.ECS.System
         _basicEnemyFilter = FilterBuilder
             .Include<BasicEnemy>()
             .Include<RectangleBounds>()
+            .Include<BasicEnemyState>()
+            .Build();
+
+        _bullterFilter = FilterBuilder
+            .Include<Bullet>()
+            .Include<CircleBounds>()
             .Build();
     }
 
@@ -39,6 +47,17 @@ public class CollisionBehaviour : MoonTools.ECS.System
                     .RectangleCollidesRectangle(playerBounds, basicEnemyBounds))
                 {
                     Send(new EndGame());
+                }
+
+                foreach (var bulletEntites in _bullterFilter.Entities)
+                {
+                    var bulletBounds = Get<CircleBounds>(bulletEntites).Value;
+
+                    if (CollisionDetection
+                        .CircleCollidesRectangle(bulletBounds, basicEnemyBounds))
+                    {
+                        Set(basicEnemyEntity, BasicEnemyState.Freeze);
+                    }
                 }
             }
         }

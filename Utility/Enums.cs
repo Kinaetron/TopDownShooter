@@ -3,5 +3,6 @@
 public enum BasicEnemyState
 {
     Wait,
-    Chase
+    Chase,
+    Freeze
 }

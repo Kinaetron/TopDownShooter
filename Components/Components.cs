@@ -13,3 +13,5 @@ public readonly record struct Direction(Vector2 Value);
 public readonly record struct CircleBounds(Circle Value);
 public readonly record struct MaxAcceleration(float Value);
 public readonly record struct RectangleBounds(Rectangle Value);
+public readonly record struct GameTimer(TimeSpan Value);
+public readonly record struct FreezeTime(TimeSpan Value);

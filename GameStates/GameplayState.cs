@@ -59,6 +59,8 @@ public class GameplayState : GameState
         _world.Set(basicEnemy, BasicEnemyState.Wait);
         _world.Set(basicEnemy, new CircleBounds(new Circle(100, new Vector2(100 + 8, 100 + 8))));
         _world.Set(basicEnemy, new Speed(1 * Time.FRAME_RATE));
+        _world.Set(basicEnemy, new GameTimer(TimeSpan.FromSeconds(5)));
+        _world.Set(basicEnemy, new FreezeTime(TimeSpan.FromSeconds(5)));
     }
 
     public override void Update(TimeSpan delta)

@@ -20,6 +20,8 @@ public class BasicEnemySystem : MoonTools.ECS.System
             .Include<RectangleBounds>()
             .Include<BasicEnemyState>()
             .Include<Speed>()
+            .Include<GameTimer>()
+            .Include<FreezeTime>()
             .Build();
 
         _playerFilter = FilterBuilder
@@ -34,6 +36,8 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
         foreach (var playerEntity in _playerFilter.Entities)
         {
+            var playerBounds = Get<RectangleBounds>(playerEntity).Value;
+
             foreach (var entity in _basicEnemyFilter.Entities)
             {
                 var state = Get<BasicEnemyState>(entity);
@@ -41,7 +45,7 @@ public class BasicEnemySystem : MoonTools.ECS.System
                 var bounds = Get<RectangleBounds>(entity).Value;
                 var checkBounds = Get<CircleBounds>(entity).Value;
 
-                var playerBounds = Get<RectangleBounds>(playerEntity).Value;
+                var timer = Get<GameTimer>(entity).Value;
 
                 switch (state)
                 {
@@ -57,6 +61,13 @@ public class BasicEnemySystem : MoonTools.ECS.System
                             state = BasicEnemyState.Wait;
                         }
                         break;
+                    case BasicEnemyState.Freeze:
+                        if(timer <= TimeSpan.Zero)
+                        {
+                            state = BasicEnemyState.Wait;
+                            Set(entity, new GameTimer(Get<FreezeTime>(entity).Value));
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -67,6 +78,12 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
                     var actualSpeed = speed * directionToPlayer * deltaTime;
                     bounds.Position += actualSpeed;
+                }
+
+                if(state == BasicEnemyState.Freeze)
+                {
+                    timer -= delta;
+                    Set(entity, new GameTimer(timer));
                 }
 
                 Set(entity, state);
