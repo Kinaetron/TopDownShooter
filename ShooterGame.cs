@@ -6,6 +6,9 @@ namespace TopDownShooter;
 
 public class ShooterGame : Game
 {
+    private DeathState _deathState;
+    private GameplayState _gameplayState;
+
     private GameState _currentState;
 
     public ShooterGame(
@@ -22,7 +25,12 @@ public class ShooterGame : Game
     {
         ShaderCross.Initialize();
 
-        _currentState = new GameplayState(this);
+        _deathState = new DeathState(this, _gameplayState);
+        _gameplayState = new GameplayState(this, _deathState);
+
+        _deathState.SetTransitionState(_gameplayState);
+
+        _currentState = _gameplayState;
         _currentState.Start();
     }
 
@@ -34,5 +42,17 @@ public class ShooterGame : Game
     protected override void Draw(double alpha)
     {
         _currentState.Draw(alpha);
+    }
+
+    public void SetState(GameState gameState)
+    {
+        if(_currentState != null)
+        {
+            _currentState.End();
+        }
+
+
+        gameState.Start();
+        _currentState = gameState;
     }
 }
