@@ -49,14 +49,15 @@ public class CollisionBehaviour : MoonTools.ECS.System
                     Send(new EndGame());
                 }
 
-                foreach (var bulletEntites in _bullterFilter.Entities)
+                foreach (var bulletEnemy in _bullterFilter.Entities)
                 {
-                    var bulletBounds = Get<CircleBounds>(bulletEntites).Value;
+                    var bulletBounds = Get<CircleBounds>(bulletEnemy).Value;
 
                     if (CollisionDetection
                         .CircleCollidesRectangle(bulletBounds, basicEnemyBounds))
                     {
                         Set(basicEnemyEntity, BasicEnemyState.Freeze);
+                        Destroy(bulletEnemy);
                     }
                 }
             }
