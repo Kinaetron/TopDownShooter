@@ -13,9 +13,8 @@ public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
 
-    private readonly MoonTools.ECS.Filter _playerFilter;
-    private readonly MoonTools.ECS.Filter _bulletFilter;
-    private readonly MoonTools.ECS.Filter _basicEnemyFilter;
+    private readonly MoonTools.ECS.Filter _circleBoundsFilter;
+    private readonly MoonTools.ECS.Filter _rectangleBoundsFilter;
 
     public DebugRenderer(
         uint resolutionX, 
@@ -26,21 +25,13 @@ public class DebugRenderer : Renderer
         World world) : 
         base(world)
     {
-        _playerFilter = FilterBuilder
-            .Include<Player>()
+        _rectangleBoundsFilter = FilterBuilder
             .Include<Color>()
             .Include<RectangleBounds>()
             .Build();
 
-        _bulletFilter = FilterBuilder
-            .Include<Bullet>()
-            .Include<CircleBounds>()
-            .Build();
-
-        _basicEnemyFilter = FilterBuilder
-            .Include<BasicEnemy>()
+        _circleBoundsFilter = FilterBuilder
             .Include<Color>()
-            .Include<RectangleBounds>()
             .Include<CircleBounds>()
             .Build();
 
@@ -56,27 +47,17 @@ public class DebugRenderer : Renderer
     {
         _shapeBatcher.Begin(Color.CornflowerBlue, Matrix4x4.Identity);
 
-        foreach(var playerEntity in _playerFilter.Entities)
+        foreach(var rectangleEntites in _rectangleBoundsFilter.Entities)
         {
-            var color = Get<Color>(playerEntity);
-            var bounds = Get<RectangleBounds>(playerEntity).Value;
+            var color = Get<Color>(rectangleEntites);
+            var bounds = Get<RectangleBounds>(rectangleEntites).Value;
 
             _shapeBatcher.DrawFilledRectangle(bounds, MathHelper.TwoPi, color);
         }
 
-        foreach (var basicEnemyEntity in _basicEnemyFilter.Entities)
+        foreach (var circleEntites in _circleBoundsFilter.Entities)
         {
-            var color = Get<Color>(basicEnemyEntity);
-            var bounds = Get<RectangleBounds>(basicEnemyEntity).Value;
-            var circleBounds = Get<CircleBounds>(basicEnemyEntity).Value;
-
-            _shapeBatcher.DrawFilledRectangle(bounds, MathHelper.TwoPi, color);
-            _shapeBatcher.DrawLineCircle(circleBounds, color);
-        }
-
-        foreach (var bulletEntity in _bulletFilter.Entities)
-        {
-            var bounds = Get<CircleBounds>(bulletEntity).Value;
+            var bounds = Get<CircleBounds>(circleEntites).Value;
             _shapeBatcher.DrawLineCircle(bounds, Color.Red);
         }
 

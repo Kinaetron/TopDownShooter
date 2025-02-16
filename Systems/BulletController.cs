@@ -1,14 +1,14 @@
 ﻿using Flam.Shapes;
 using MoonTools.ECS;
+using MoonWorks.Graphics;
 using System.Numerics;
 using TopDownShooter.Components;
-using TopDownShooter.Utility;
 
 namespace TopDownShooter.Systems;
 
 public class BulletController : MoonTools.ECS.System
 {
-    private readonly Filter _bulletFilter;
+    private readonly MoonTools.ECS.Filter _bulletFilter;
 
     public BulletController(World world)
         :base(world)
@@ -29,6 +29,7 @@ public class BulletController : MoonTools.ECS.System
         Vector2 direction)
     {
         var bullet = CreateEntity();
+        Set(bullet, Color.Red);
         Set(bullet, new Bullet());
         Set(bullet, new CircleBounds(new Circle(radius, position)));
         Set(bullet, new Speed(speed));
