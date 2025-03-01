@@ -1,4 +1,5 @@
 ﻿using Flam.Graphics;
+using Flam.Shapes;
 using MoonTools.ECS;
 using MoonWorks;
 using MoonWorks.Graphics;
@@ -13,6 +14,7 @@ public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
 
+    private readonly MoonTools.ECS.Filter _lineFilter;
     private readonly MoonTools.ECS.Filter _circleBoundsFilter;
     private readonly MoonTools.ECS.Filter _rectangleBoundsFilter;
 
@@ -27,12 +29,17 @@ public class DebugRenderer : Renderer
     {
         _rectangleBoundsFilter = FilterBuilder
             .Include<Color>()
-            .Include<RectangleBounds>()
+            .Include<Rectangle>()
             .Build();
 
         _circleBoundsFilter = FilterBuilder
             .Include<Color>()
             .Include<CircleBounds>()
+            .Build();
+
+        _lineFilter = FilterBuilder
+            .Include<Color>()
+            .Include<LineSegment>()
             .Build();
 
         _shapeBatcher = new ShapeBatcher(
@@ -50,7 +57,7 @@ public class DebugRenderer : Renderer
         foreach(var rectangleEntites in _rectangleBoundsFilter.Entities)
         {
             var color = Get<Color>(rectangleEntites);
-            var bounds = Get<RectangleBounds>(rectangleEntites).Value;
+            var bounds = Get<Rectangle>(rectangleEntites);
 
             _shapeBatcher.DrawFilledRectangle(bounds, MathHelper.TwoPi, color);
         }
@@ -59,6 +66,13 @@ public class DebugRenderer : Renderer
         {
             var bounds = Get<CircleBounds>(circleEntites).Value;
             _shapeBatcher.DrawLineCircle(bounds, Color.Red);
+        }
+
+        foreach (var lineEntity in _lineFilter.Entities)
+        {
+            var color = Get<Color>(lineEntity);
+            var line = Get<LineSegment>(lineEntity);
+            _shapeBatcher.DrawLineSegment(line, color);
         }
 
         _shapeBatcher.End();

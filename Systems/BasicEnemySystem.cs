@@ -17,7 +17,7 @@ public class BasicEnemySystem : MoonTools.ECS.System
     {
         _basicEnemyFilter = FilterBuilder
             .Include<BasicEnemy>()
-            .Include<RectangleBounds>()
+            .Include<Rectangle>()
             .Include<BasicEnemyState>()
             .Include<Speed>()
             .Include<GameTimer>()
@@ -26,7 +26,7 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
         _playerFilter = FilterBuilder
             .Include<Player>()
-            .Include<RectangleBounds>()
+            .Include<Rectangle>()
             .Build();
     }
 
@@ -36,13 +36,13 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
         foreach (var playerEntity in _playerFilter.Entities)
         {
-            var playerBounds = Get<RectangleBounds>(playerEntity).Value;
+            var playerBounds = Get<Rectangle>(playerEntity);
 
             foreach (var entity in _basicEnemyFilter.Entities)
             {
                 var state = Get<BasicEnemyState>(entity);
                 var speed = Get<Speed>(entity).Value;
-                var bounds = Get<RectangleBounds>(entity).Value;
+                var bounds = Get<Rectangle>(entity);
                 var checkBounds = Get<CircleBounds>(entity).Value;
 
                 var timer = Get<GameTimer>(entity).Value;
@@ -87,7 +87,7 @@ public class BasicEnemySystem : MoonTools.ECS.System
                 }
 
                 Set(entity, state);
-                Set(entity, new RectangleBounds(new Rectangle(bounds.Width, bounds.Height, bounds.Position)));
+                Set(entity, new Rectangle(bounds.Width, bounds.Height, bounds.Position));
                 Set(entity, new CircleBounds(new Circle(checkBounds.Radius, new Vector2(bounds.Position.X + 8, bounds.Position.Y + 8))));
             }
         }

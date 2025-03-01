@@ -17,12 +17,11 @@ public class GameplayState : GameState
     private ShooterGame _game;
     private GameState _transitionState;
 
+    private Motion _motion;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
     private BulletController _bulletController;
     private BasicEnemySystem _basicEnemySystem;
-    private CollisionBehaviour _collisionBehaviour;
-    private TileBoundsCollsionResolution _tileBoundsCollisionResolution;
 
 
     public GameplayState(ShooterGame game, GameState transitionState)
@@ -40,10 +39,9 @@ public class GameplayState : GameState
         var collisionTiles = level.LayerInstances[0];
 
         _world = new MoonTools.ECS.World();
+        _motion = new Motion(_world);
         _basicEnemySystem = new BasicEnemySystem(_world);
         _bulletController = new BulletController(_world);
-        _collisionBehaviour = new CollisionBehaviour(_world);
-        _tileBoundsCollisionResolution = new TileBoundsCollsionResolution(_world);
         _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
         _debugRenderer = new DebugRenderer(
             _game.MainWindow.Width,
@@ -61,11 +59,20 @@ public class GameplayState : GameState
                 var y = (i / (level.PxWid / 16)) * 16 + level.WorldY;
 
                 var tile = _world.CreateEntity();
-                _world.Set(tile, new Tile());
+                _world.Set(tile, new Solid());
                 _world.Set(tile, Color.Black);
-                _world.Set(tile, new RectangleBounds(new Rectangle(16, 16, new Vector2(x, y))));
+                _world.Set(tile, new Rectangle(16, 16, x, y));
             }
         }
+
+        var testBox = _world.CreateEntity();
+        _world.Set(testBox, new Solid());
+        _world.Set(testBox, Color.BurlyWood);
+        _world.Set(testBox, new Rectangle(100, 100, 250, 100));
+
+        var line = _world.CreateEntity();
+        _world.Set(line, Color.Green);
+        _world.Set(line, new LineSegment());
 
         var player = _world.CreateEntity();
         _world.Set(player, new Player());
@@ -73,13 +80,13 @@ public class GameplayState : GameState
         _world.Set(player, new Velocity(Vector2.Zero));
         _world.Set(player, new Remainder(Vector2.Zero));
         _world.Set(player, new Accerlation(1.0f * Time.FRAME_RATE));
-        _world.Set(player, new MaxAcceleration(2.0f * Time.FRAME_RATE));
-        _world.Set(player, new RectangleBounds(new Rectangle(16, 16, new Vector2(200, 200))));
+        _world.Set(player, new MaxSpeed(2.0f * Time.FRAME_RATE));
+        _world.Set(player, new Rectangle(16, 16, 200, 200));
 
         var basicEnemy = _world.CreateEntity();
         _world.Set(basicEnemy, new BasicEnemy());
         _world.Set(basicEnemy, Color.Red);
-        _world.Set(basicEnemy, new RectangleBounds(new Rectangle(16, 16, new Vector2(100, 100))));
+        _world.Set(basicEnemy, new Rectangle(16, 16, 100, 100));
         _world.Set(basicEnemy, BasicEnemyState.Wait);
         _world.Set(basicEnemy, new CircleBounds(new Circle(100, new Vector2(100 + 8, 100 + 8))));
         _world.Set(basicEnemy, new Speed(1 * Time.FRAME_RATE));
@@ -92,8 +99,7 @@ public class GameplayState : GameState
         _playerController.Update(delta);
         _basicEnemySystem.Update(delta);
         _bulletController.Update(delta);
-        //_tileBoundsCollisionResolution.Update(delta);
-        _collisionBehaviour.Update(delta);
+        _motion.Update(delta);
 
         if(_world.SomeMessage<EndGame>())
         {
