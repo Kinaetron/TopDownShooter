@@ -23,9 +23,9 @@ public class PlayerController : MoonTools.ECS.System
         _playerFilter =
             FilterBuilder
             .Include<Player>()
+            .Include<Position>()
             .Include<MaxSpeed>()
             .Include<Velocity>()
-            .Include<Rectangle>()
             .Include<Accerlation>()
             .Build();
     }
@@ -34,10 +34,10 @@ public class PlayerController : MoonTools.ECS.System
     {
         foreach (var entity in _playerFilter.Entities)
         {
+            var position = Get<Position>(entity).Value;
             var velocity = Get<Velocity>(entity).Value;
-            var bounds = Get<Rectangle>(entity);
-            var accerlation = Get<Accerlation>(entity).Value;
             var maxSpeed = Get<MaxSpeed>(entity).Value;
+            var accerlation = Get<Accerlation>(entity).Value;
 
             var deltaTime = (float)delta.TotalSeconds;
             var direction = new Vector2();
@@ -75,8 +75,8 @@ public class PlayerController : MoonTools.ECS.System
 
             if (_inputs.Mouse.LeftButton.IsPressed)
             {
-                var shotDirection = Vector2.Normalize(new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) - bounds.Center);
-                _bulletController.SpawnBullet(10 * Time.FRAME_RATE, 5, bounds.Position, shotDirection);
+                var shotDirection = Vector2.Normalize(new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) - position);
+                _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, position, shotDirection);
             }
         }
     }

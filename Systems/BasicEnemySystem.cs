@@ -19,9 +19,7 @@ public class BasicEnemySystem : MoonTools.ECS.System
             .Include<BasicEnemy>()
             .Include<Rectangle>()
             .Include<BasicEnemyState>()
-            .Include<Speed>()
-            .Include<GameTimer>()
-            .Include<FreezeTime>()
+            .Include<Velocity>()
             .Build();
 
         _playerFilter = FilterBuilder
@@ -41,11 +39,9 @@ public class BasicEnemySystem : MoonTools.ECS.System
             foreach (var entity in _basicEnemyFilter.Entities)
             {
                 var state = Get<BasicEnemyState>(entity);
-                var speed = Get<Speed>(entity).Value;
+                var velocity = Get<Velocity>(entity).Value;
                 var bounds = Get<Rectangle>(entity);
                 var checkBounds = Get<CircleBounds>(entity).Value;
-
-                var timer = Get<GameTimer>(entity).Value;
 
                 switch (state)
                 {
@@ -61,13 +57,6 @@ public class BasicEnemySystem : MoonTools.ECS.System
                             state = BasicEnemyState.Wait;
                         }
                         break;
-                    case BasicEnemyState.Freeze:
-                        if(timer <= TimeSpan.Zero)
-                        {
-                            state = BasicEnemyState.Wait;
-                            Set(entity, new GameTimer(Get<FreezeTime>(entity).Value));
-                        }
-                        break;
                     default:
                         break;
                 }
@@ -76,19 +65,12 @@ public class BasicEnemySystem : MoonTools.ECS.System
                 {
                     var directionToPlayer = Vector2.Normalize(playerBounds.Position - bounds.Position);
 
-                    var actualSpeed = speed * directionToPlayer * deltaTime;
-                    bounds.Position += actualSpeed;
-                }
-
-                if(state == BasicEnemyState.Freeze)
-                {
-                    timer -= delta;
-                    Set(entity, new GameTimer(timer));
+                    velocity = velocity * directionToPlayer * deltaTime;
                 }
 
                 Set(entity, state);
-                Set(entity, new Rectangle(bounds.Width, bounds.Height, bounds.Position));
-                Set(entity, new CircleBounds(new Circle(checkBounds.Radius, new Vector2(bounds.Position.X + 8, bounds.Position.Y + 8))));
+                Set(entity, velocity);
+                //Set(entity, new CircleBounds(new Circle(checkBounds.Radius, new Vector2(bounds.Position.X + 8, bounds.Position.Y + 8))));
             }
         }
     }

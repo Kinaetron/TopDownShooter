@@ -7,6 +7,7 @@ using MoonWorks.Math;
 using MoonWorks.Storage;
 using System.Numerics;
 using TopDownShooter.Components;
+using TopDownShooter.Utility;
 
 namespace TopDownShooter.Graphics;
 
@@ -16,7 +17,7 @@ public class DebugRenderer : Renderer
 
     private readonly MoonTools.ECS.Filter _lineFilter;
     private readonly MoonTools.ECS.Filter _circleBoundsFilter;
-    private readonly MoonTools.ECS.Filter _rectangleBoundsFilter;
+    private readonly MoonTools.ECS.Filter _rectangleColliderFilter;
 
     public DebugRenderer(
         uint resolutionX, 
@@ -27,13 +28,15 @@ public class DebugRenderer : Renderer
         World world) : 
         base(world)
     {
-        _rectangleBoundsFilter = FilterBuilder
+        _rectangleColliderFilter = FilterBuilder
             .Include<Color>()
+            .Include<Position>()
             .Include<Rectangle>()
             .Build();
 
         _circleBoundsFilter = FilterBuilder
             .Include<Color>()
+            .Include<Position>()
             .Include<CircleBounds>()
             .Build();
 
@@ -54,18 +57,25 @@ public class DebugRenderer : Renderer
     {
         _shapeBatcher.Begin(Color.CornflowerBlue, Matrix4x4.Identity);
 
-        foreach(var rectangleEntites in _rectangleBoundsFilter.Entities)
+        foreach(var rectangleEntites in _rectangleColliderFilter.Entities)
         {
             var color = Get<Color>(rectangleEntites);
-            var bounds = Get<Rectangle>(rectangleEntites);
+            var collider = Get<Rectangle>(rectangleEntites);
+            var position = Get<Position>(rectangleEntites).Value;
 
-            _shapeBatcher.DrawFilledRectangle(bounds, MathHelper.TwoPi, color);
+            var colliderWorld = Helper.GetWorldRect(position, collider);
+
+            _shapeBatcher.DrawFilledRectangle(colliderWorld, MathHelper.TwoPi, color);
         }
 
         foreach (var circleEntites in _circleBoundsFilter.Entities)
         {
-            var bounds = Get<CircleBounds>(circleEntites).Value;
-            _shapeBatcher.DrawLineCircle(bounds, Color.Red);
+            var collider = Get<CircleBounds>(circleEntites).Value;
+            var position = Get<Position>(circleEntites).Value;
+
+            var colliderWorld = Helper.GetWorldCircle(position, collider);
+
+            _shapeBatcher.DrawLineCircle(colliderWorld, Color.Red);
         }
 
         foreach (var lineEntity in _lineFilter.Entities)

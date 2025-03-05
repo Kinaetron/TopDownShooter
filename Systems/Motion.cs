@@ -1,17 +1,16 @@
 ﻿using Flam.Collision;
 using Flam.Shapes;
 using MoonTools.ECS;
-using MoonWorks.Graphics;
-using MoonWorks.Input;
 using System.Numerics;
 using TopDownShooter.Components;
+using TopDownShooter.Utility;
 
 namespace TopDownShooter.Systems;
 
 public class Motion : MoonTools.ECS.System
 {
-    private MoonTools.ECS.Filter _solidFilter;
-    private MoonTools.ECS.Filter _velocityFilter;
+    private Filter _solidFilter;
+    private Filter _velocityFilter;
 
     public Motion(World world)
         :base(world)
@@ -19,13 +18,14 @@ public class Motion : MoonTools.ECS.System
         _solidFilter =
             FilterBuilder
             .Include<Solid>()
+            .Include<Position>()
             .Include<Rectangle>()
             .Build();
 
         _velocityFilter =
             FilterBuilder
             .Include<Velocity>()
-            .Include<Rectangle>()
+            .Include<Position>()
             .Build();
     }
 
@@ -34,33 +34,38 @@ public class Motion : MoonTools.ECS.System
         foreach (var velEntity in _velocityFilter.Entities)
         {
             var velocity = Get<Velocity>(velEntity).Value;
-            var velocityBounds = Get<Rectangle>(velEntity);
+            var position = Get<Position>(velEntity).Value;
 
-            velocityBounds.Position += velocity;
+            position += velocity;
 
             foreach (var solidEntity in _solidFilter.Entities)
             {
-                var solidBounds = Get<Rectangle>(solidEntity);
-                var collisionResult = CollisionDetection.MovingRectangleCollidesRectangle(velocityBounds, solidBounds, velocity);
+                if(!Has<Rectangle>(velEntity))
+                {
+                    break;
+                }
+
+                var solidCollider = Get<Rectangle>(solidEntity);
+                var solidPosition = Get<Position>(solidEntity).Value;
+                var solidColliderWorld = Helper.GetWorldRect(solidPosition, solidCollider);
+
+                var velocityCollider = Get<Rectangle>(velEntity);
+                var velocityColliderWorld = Helper.GetWorldRect(position, velocityCollider);
+
+                var collisionResult = CollisionDetection.MovingRectangleCollidesRectangle(velocityColliderWorld, solidColliderWorld, velocity);
 
                 if (collisionResult.Hit)
                 {
                     float epsilon = 0.01f;
-                    velocityBounds.Position = collisionResult.ContactPoint + collisionResult.Normal * epsilon;
+                    position = collisionResult.ContactPoint + collisionResult.Normal * epsilon;
 
                     var remainingVelocity = velocity - Vector2.Dot(velocity, collisionResult.Normal) * collisionResult.Normal;
                     velocity = remainingVelocity;
-
-                    Set(solidEntity, Color.Pink);
-                }
-                else
-                {
-                    Set(solidEntity, Color.White);
                 }
             }
 
-            Set(velEntity, velocity);
-            Set(velEntity, velocityBounds);
+            Set(velEntity, new Velocity(velocity));
+            Set(velEntity, new Position(position));
         }
     }
 }
