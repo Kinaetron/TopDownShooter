@@ -1,6 +1,4 @@
-﻿using Flam.Collision;
-using Flam.Shapes;
-using MoonTools.ECS;
+﻿using MoonTools.ECS;
 using System.Numerics;
 using TopDownShooter.Components;
 using TopDownShooter.Utility;
@@ -17,14 +15,16 @@ public class BasicEnemySystem : MoonTools.ECS.System
     {
         _basicEnemyFilter = FilterBuilder
             .Include<BasicEnemy>()
-            .Include<Rectangle>()
+            .Include<ColliderUnion>()
             .Include<BasicEnemyState>()
             .Include<Velocity>()
+            .Include<MaxSpeed>()
+            .Include<DistanceCheck>()
             .Build();
 
         _playerFilter = FilterBuilder
             .Include<Player>()
-            .Include<Rectangle>()
+            .Include<Position>()
             .Build();
     }
 
@@ -34,25 +34,27 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
         foreach (var playerEntity in _playerFilter.Entities)
         {
-            var playerBounds = Get<Rectangle>(playerEntity);
+            var playerPosition = Get<Position>(playerEntity).Value;
 
-            foreach (var entity in _basicEnemyFilter.Entities)
+            foreach (var enemyEntity in _basicEnemyFilter.Entities)
             {
-                var state = Get<BasicEnemyState>(entity);
-                var velocity = Get<Velocity>(entity).Value;
-                var bounds = Get<Rectangle>(entity);
-                var checkBounds = Get<CircleBounds>(entity).Value;
+                var distanceAway = Get<DistanceCheck>(enemyEntity).Value;
+                var enemyPosition = Get<Position>(enemyEntity).Value;
+                var enemyToPlayerDistance = (enemyPosition - playerPosition).Length();
+
+                var state = Get<BasicEnemyState>(enemyEntity);
+                var velocity = Get<Velocity>(enemyEntity).Value;
 
                 switch (state)
                 {
                     case BasicEnemyState.Wait:
-                        if (CollisionDetection.CircleCollidesRectangle(checkBounds, playerBounds))
+                        if (enemyToPlayerDistance <= distanceAway)
                         {
                             state = BasicEnemyState.Chase;
                         }
                         break;
                     case BasicEnemyState.Chase:
-                        if (!CollisionDetection.CircleCollidesRectangle(checkBounds, playerBounds))
+                        if (enemyToPlayerDistance > distanceAway)
                         {
                             state = BasicEnemyState.Wait;
                         }
@@ -63,14 +65,17 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
                 if (state == BasicEnemyState.Chase)
                 {
-                    var directionToPlayer = Vector2.Normalize(playerBounds.Position - bounds.Position);
-
-                    velocity = velocity * directionToPlayer * deltaTime;
+                    var maxSpeed = Get<MaxSpeed>(enemyEntity).Value;
+                    var directionToPlayer = Vector2.Normalize(playerPosition - enemyPosition);
+                    velocity = maxSpeed * directionToPlayer * deltaTime;
+                }
+                else if(state == BasicEnemyState.Wait)
+                {
+                    velocity = Vector2.Zero;
                 }
 
-                Set(entity, state);
-                Set(entity, velocity);
-                //Set(entity, new CircleBounds(new Circle(checkBounds.Radius, new Vector2(bounds.Position.X + 8, bounds.Position.Y + 8))));
+                    Set(enemyEntity, state);
+                Set(enemyEntity, new Velocity(velocity));
             }
         }
     }

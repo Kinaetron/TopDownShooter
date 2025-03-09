@@ -1,16 +1,14 @@
 ﻿using Flam.Collision;
-using Flam.Shapes;
 using MoonTools.ECS;
 using System.Numerics;
 using TopDownShooter.Components;
-using TopDownShooter.Utility;
 
 namespace TopDownShooter.Systems;
 
 public class Motion : MoonTools.ECS.System
 {
-    private Filter _solidFilter;
-    private Filter _velocityFilter;
+    private readonly Filter _solidFilter;
+    private readonly Filter _velocityFilter;
 
     public Motion(World world)
         :base(world)
@@ -19,7 +17,7 @@ public class Motion : MoonTools.ECS.System
             FilterBuilder
             .Include<Solid>()
             .Include<Position>()
-            .Include<Rectangle>()
+            .Include<ColliderUnion>()
             .Build();
 
         _velocityFilter =
@@ -38,29 +36,70 @@ public class Motion : MoonTools.ECS.System
 
             position += velocity;
 
-            foreach (var solidEntity in _solidFilter.Entities)
+            foreach (var velEntity2 in _velocityFilter.Entities)
             {
-                if(!Has<Rectangle>(velEntity))
+                if(velEntity == velEntity2)
                 {
-                    break;
+                    continue;
                 }
 
-                var solidCollider = Get<Rectangle>(solidEntity);
-                var solidPosition = Get<Position>(solidEntity).Value;
-                var solidColliderWorld = Helper.GetWorldRect(solidPosition, solidCollider);
-
-                var velocityCollider = Get<Rectangle>(velEntity);
-                var velocityColliderWorld = Helper.GetWorldRect(position, velocityCollider);
-
-                var collisionResult = CollisionDetection.MovingRectangleCollidesRectangle(velocityColliderWorld, solidColliderWorld, velocity);
-
-                if (collisionResult.Hit)
+                if(Has<CanBeFrozen>(velEntity) && Has<Freezes>(velEntity2))
                 {
-                    float epsilon = 0.01f;
-                    position = collisionResult.ContactPoint + collisionResult.Normal * epsilon;
+                     if(Has<ColliderUnion>(velEntity) && Has<ColliderUnion>(velEntity2))
+                     {
+                        var freezesTime = Get<Freezes>(velEntity2).Value;
 
-                    var remainingVelocity = velocity - Vector2.Dot(velocity, collisionResult.Normal) * collisionResult.Normal;
-                    velocity = remainingVelocity;
+                        var freezesCollder = Get<ColliderUnion>(velEntity2);
+                        var freezePosition = Get<Position>(velEntity2).Value;
+
+                        freezesCollder =  ColliderUnion.GetWorldCollider(freezePosition, freezesCollder);
+
+                        var canBeFrozenPosition = Get<Position>(velEntity).Value;
+                        var canBeFrozenCollider = Get<ColliderUnion>(velEntity);
+
+                        canBeFrozenCollider = ColliderUnion.GetWorldCollider(
+                            canBeFrozenPosition,
+                            canBeFrozenCollider);
+
+                        if (freezesCollder.CollidesWith(canBeFrozenCollider))
+                        {
+                            Set(velEntity, new Frozen(freezesTime));
+                        }
+                    }
+                }
+            }
+
+            foreach (var solidEntity in _solidFilter.Entities)
+            {
+                if(!Has<ColliderUnion>(velEntity))
+                {
+                    continue;
+                }
+
+                var solidCollider = Get<ColliderUnion>(solidEntity);
+                var solidPosition = Get<Position>(solidEntity).Value;
+                var solidColliderWorld = ColliderUnion.GetWorldCollider(solidPosition, solidCollider);
+
+                var velocityCollider = Get<ColliderUnion>(velEntity);
+                var velocityColliderWorld = ColliderUnion.GetWorldCollider(position, velocityCollider);
+
+                if(solidColliderWorld.Type == ColliderUnion.ColliderType.Rectangle && 
+                   velocityColliderWorld.Type == ColliderUnion.ColliderType.Rectangle)
+                {
+                    var collisionResult = 
+                        CollisionDetection.MovingRectangleCollidesRectangle(
+                            velocityColliderWorld.Rectangle, 
+                            solidColliderWorld.Rectangle, 
+                            velocity);
+
+                    if (collisionResult.Hit)
+                    {
+                        float epsilon = 0.01f;
+                        position = collisionResult.ContactPoint + collisionResult.Normal * epsilon;
+
+                        var remainingVelocity = velocity - Vector2.Dot(velocity, collisionResult.Normal) * collisionResult.Normal;
+                        velocity = remainingVelocity;
+                    }
                 }
             }
 

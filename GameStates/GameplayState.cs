@@ -62,8 +62,8 @@ public class GameplayState : GameState
 
                 var tile = _world.CreateEntity();
                 _world.Set(tile, new Solid());
-                _world.Set(tile, Color.Black);
-                _world.Set(tile, new Rectangle(16, 16, 0, 0));
+                _world.Set(tile, Color.Pink);
+                _world.Set(tile, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
                 _world.Set(tile, new Position(new Vector2(x, y)));
             }
         }
@@ -71,12 +71,8 @@ public class GameplayState : GameState
         var testBox = _world.CreateEntity();
         _world.Set(testBox, new Solid());
         _world.Set(testBox, Color.BurlyWood);
-        _world.Set(testBox, new Rectangle(100, 100, 250, 100));
+        _world.Set(testBox, new ColliderUnion(new Rectangle(100, 100, 250, 100)));
         _world.Set(testBox, new Position(new Vector2(250, 100)));
-
-        var line = _world.CreateEntity();
-        _world.Set(line, Color.Green);
-        _world.Set(line, new LineSegment());
 
         var player = _world.CreateEntity();
         _world.Set(player, new Player());
@@ -85,20 +81,20 @@ public class GameplayState : GameState
         _world.Set(player, new Remainder(Vector2.Zero));
         _world.Set(player, new Accerlation(1.0f * Constants.FRAME_RATE));
         _world.Set(player, new MaxSpeed(2.0f * Constants.FRAME_RATE));
-        _world.Set(player, new Rectangle(16, 16, 0, 0));
+        _world.Set(player, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
         _world.Set(player, new Position(new Vector2(100, 100)));
 
         var basicEnemy = _world.CreateEntity();
         _world.Set(basicEnemy, new BasicEnemy());
         _world.Set(basicEnemy, Color.Red);
-        _world.Set(basicEnemy, new Rectangle(16, 16, 0, 0));
+        _world.Set(basicEnemy, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
         _world.Set(basicEnemy, BasicEnemyState.Wait);
-        _world.Set(basicEnemy, new CircleBounds(new Circle(100, Vector2.Zero)));
+        _world.Set(basicEnemy, new DistanceCheck(150));
         _world.Set(basicEnemy, new Velocity(Vector2.Zero));
         _world.Set(basicEnemy, new Accerlation(1 * Constants.FRAME_RATE));
-        _world.Set(basicEnemy, new MaxSpeed(2.0f * Constants.FRAME_RATE));
-        _world.Set(basicEnemy, new CanFreeze());
+        _world.Set(basicEnemy, new MaxSpeed(1.0f * Constants.FRAME_RATE));
         _world.Set(basicEnemy, new Position(new Vector2(20, 200)));
+        _world.Set(basicEnemy, new CanBeFrozen());
     }
 
     public override void Update(TimeSpan delta)

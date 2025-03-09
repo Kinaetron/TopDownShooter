@@ -29,10 +29,11 @@ public class BulletController : MoonTools.ECS.System
         var bullet = CreateEntity();
         Set(bullet, Color.Red);
         Set(bullet, new MaxSpeed(speed));
-        Set(bullet, new CircleBounds(new Circle(radius, Vector2.Zero)));
+        Set(bullet, new ColliderUnion(new Circle(radius, Vector2.Zero)));
         Set(bullet, new Velocity(Vector2.Zero));
         Set(bullet, new Direction(direction));
         Set(bullet, new Position(position));
+        Set(bullet, new Freezes(1.0f));
     }
 
     public override void Update(TimeSpan delta)

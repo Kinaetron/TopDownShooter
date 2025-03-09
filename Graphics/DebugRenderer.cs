@@ -1,5 +1,4 @@
 ﻿using Flam.Graphics;
-using Flam.Shapes;
 using MoonTools.ECS;
 using MoonWorks;
 using MoonWorks.Graphics;
@@ -7,7 +6,6 @@ using MoonWorks.Math;
 using MoonWorks.Storage;
 using System.Numerics;
 using TopDownShooter.Components;
-using TopDownShooter.Utility;
 
 namespace TopDownShooter.Graphics;
 
@@ -15,9 +13,7 @@ public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
 
-    private readonly MoonTools.ECS.Filter _lineFilter;
-    private readonly MoonTools.ECS.Filter _circleBoundsFilter;
-    private readonly MoonTools.ECS.Filter _rectangleColliderFilter;
+    private readonly MoonTools.ECS.Filter _colliderFilter;
 
     public DebugRenderer(
         uint resolutionX, 
@@ -28,21 +24,10 @@ public class DebugRenderer : Renderer
         World world) : 
         base(world)
     {
-        _rectangleColliderFilter = FilterBuilder
+        _colliderFilter = FilterBuilder
             .Include<Color>()
             .Include<Position>()
-            .Include<Rectangle>()
-            .Build();
-
-        _circleBoundsFilter = FilterBuilder
-            .Include<Color>()
-            .Include<Position>()
-            .Include<CircleBounds>()
-            .Build();
-
-        _lineFilter = FilterBuilder
-            .Include<Color>()
-            .Include<LineSegment>()
+            .Include<ColliderUnion>()
             .Build();
 
         _shapeBatcher = new ShapeBatcher(
@@ -57,32 +42,26 @@ public class DebugRenderer : Renderer
     {
         _shapeBatcher.Begin(Color.CornflowerBlue, Matrix4x4.Identity);
 
-        foreach(var rectangleEntites in _rectangleColliderFilter.Entities)
+        foreach(var entites in _colliderFilter.Entities)
         {
-            var color = Get<Color>(rectangleEntites);
-            var collider = Get<Rectangle>(rectangleEntites);
-            var position = Get<Position>(rectangleEntites).Value;
+            var color = Get<Color>(entites);
+            var collider = Get<ColliderUnion>(entites);
+            var position = Get<Position>(entites).Value;
 
-            var colliderWorld = Helper.GetWorldRect(position, collider);
+            var colliderWorld = ColliderUnion.GetWorldCollider(position, collider);
 
-            _shapeBatcher.DrawFilledRectangle(colliderWorld, MathHelper.TwoPi, color);
-        }
+            switch (colliderWorld.Type)
+            {
+                case ColliderUnion.ColliderType.Rectangle:
+                    _shapeBatcher.DrawFilledRectangle(colliderWorld.Rectangle, MathHelper.TwoPi, color);
+                    break;
 
-        foreach (var circleEntites in _circleBoundsFilter.Entities)
-        {
-            var collider = Get<CircleBounds>(circleEntites).Value;
-            var position = Get<Position>(circleEntites).Value;
-
-            var colliderWorld = Helper.GetWorldCircle(position, collider);
-
-            _shapeBatcher.DrawLineCircle(colliderWorld, Color.Red);
-        }
-
-        foreach (var lineEntity in _lineFilter.Entities)
-        {
-            var color = Get<Color>(lineEntity);
-            var line = Get<LineSegment>(lineEntity);
-            _shapeBatcher.DrawLineSegment(line, color);
+                case ColliderUnion.ColliderType.Circle:
+                    _shapeBatcher.DrawLineCircle(colliderWorld.Circle, color);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         _shapeBatcher.End();
