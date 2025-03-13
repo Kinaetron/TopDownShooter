@@ -75,10 +75,14 @@ public class PlayerController : MoonTools.ECS.System
 
             if (_inputs.Mouse.LeftButton.IsPressed)
             {
+                var cameraTranslation = GetSingleton<Translate>().Value;
+
                 var collider = Get<ColliderUnion>(entity);
                 var colliderRect = ColliderUnion.GetWorldCollider(position, collider).Rectangle;
 
-                var shotDirection = Vector2.Normalize(new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) - position);
+                var worldMousePosition = new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) + cameraTranslation;
+
+                var shotDirection = Vector2.Normalize(new Vector2(worldMousePosition.X, worldMousePosition.Y) - position);
                 var shotPosition = colliderRect.Center + shotDirection * 10;
 
                 _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, shotPosition, shotDirection);
