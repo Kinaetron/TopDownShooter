@@ -89,6 +89,7 @@ public class GameplayState : GameState
         _world.Set(player, new MaxSpeed(2.0f * Constants.FRAME_RATE));
         _world.Set(player, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
         _world.Set(player, new Position(new Vector2(100, 100)));
+        _world.Set(player, new CanDieOnHit());
 
         var basicEnemy = _world.CreateEntity();
         _world.Set(basicEnemy, new BasicEnemy());
@@ -101,6 +102,7 @@ public class GameplayState : GameState
         _world.Set(basicEnemy, new MaxSpeed(1.0f * Constants.FRAME_RATE));
         _world.Set(basicEnemy, new Position(new Vector2(20, 200)));
         _world.Set(basicEnemy, new CanBeFrozen());
+        _world.Set(basicEnemy, new CanKillOnHit());
     }
 
     public override void Update(TimeSpan delta)

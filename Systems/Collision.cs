@@ -23,6 +23,12 @@ public class Collision : MoonTools.ECS.System
                 Set(collision.A, new MarkedToFreeze(freezeTime));
             }
 
+           if(Has<CanDieOnHit>(collision.A) &&
+               Has<CanKillOnHit>(collision.B))
+            {
+                Send(new EndGame());
+            }
+
            if(Has<DestroyOnHit>(collision.A))
            {
                 Set(collision.A, new MarkedToDestroy());
