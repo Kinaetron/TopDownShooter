@@ -18,6 +18,7 @@ public class GameplayState : GameState
     private GameState _transitionState;
 
     private Time _time;
+    private Camera _camera;
     private Motion _motion;
     private Freeze _freeze;
     private Destroy _destroy;
@@ -26,7 +27,6 @@ public class GameplayState : GameState
     private PlayerController _playerController;
     private BulletController _bulletController;
     private BasicEnemySystem _basicEnemySystem;
-
 
     public GameplayState(ShooterGame game, GameState transitionState)
     {
@@ -59,12 +59,18 @@ public class GameplayState : GameState
             _game.GraphicsDevice,
             _world);
 
+        var levelSizeX = 0.0f;
+        var levelSizeY = 0.0f;
+
         for (int i = 0; i < collisionTiles.IntGridCsv.Length; i++)
         {
             if (collisionTiles.IntGridCsv[i] == 1)
             {
                 var x = (i % (level.PxWid / 16)) * 16 + level.WorldX;
                 var y = (i / (level.PxWid / 16)) * 16 + level.WorldY;
+
+                levelSizeX = level.PxWid + level.WorldX;
+                levelSizeY = level.PxHei + level.WorldY;
 
                 var tile = _world.CreateEntity();
                 _world.Set(tile, new Solid());
@@ -73,6 +79,13 @@ public class GameplayState : GameState
                 _world.Set(tile, new Position(new Vector2(x, y)));
             }
         }
+
+        _camera = new Camera(
+            levelSizeX,
+            levelSizeY,
+            _game.MainWindow.Width,
+            _game.MainWindow.Height,
+            _world);
 
         var testBox = _world.CreateEntity();
         _world.Set(testBox, new Solid());
@@ -103,6 +116,9 @@ public class GameplayState : GameState
         _world.Set(basicEnemy, new Position(new Vector2(20, 200)));
         _world.Set(basicEnemy, new CanBeFrozen());
         _world.Set(basicEnemy, new CanKillOnHit());
+
+        var camera = _world.CreateEntity();
+        _world.Set(camera, new Translate(Vector2.Zero));
     }
 
     public override void Update(TimeSpan delta)
@@ -115,6 +131,7 @@ public class GameplayState : GameState
         _collision.Update(delta);
         _freeze.Update(delta);
         _destroy.Update(delta);
+        _camera.Update(delta);
 
         if (_world.SomeMessage<EndGame>())
         {

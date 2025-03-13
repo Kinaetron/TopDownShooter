@@ -12,11 +12,10 @@ namespace TopDownShooter.Graphics;
 public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
-
     private readonly MoonTools.ECS.Filter _colliderFilter;
 
     public DebugRenderer(
-        uint resolutionX, 
+        uint resolutionX,
         uint resolutionY,
         TitleStorage titleStorage,
         Window window,
@@ -40,7 +39,10 @@ public class DebugRenderer : Renderer
 
     public void Render(double alpha)
     {
-        _shapeBatcher.Begin(Color.CornflowerBlue, Matrix4x4.Identity);
+        var translation = GetSingleton<Translate>().Value;
+        Matrix4x4 cameraMatrix = Matrix4x4.CreateTranslation(new Vector3(-translation.X, -translation.Y, 0));
+
+        _shapeBatcher.Begin(Color.CornflowerBlue, cameraMatrix);
 
         foreach(var entites in _colliderFilter.Entities)
         {

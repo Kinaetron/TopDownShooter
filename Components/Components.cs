@@ -125,3 +125,4 @@ public readonly record struct DestroyOnHit();
 public readonly record struct MarkedToDestroy();
 public readonly record struct CanDieOnHit();
 public readonly record struct CanKillOnHit();
+public readonly record struct Translate(Vector2 Value);
