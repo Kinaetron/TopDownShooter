@@ -38,6 +38,12 @@ public class BasicEnemySystem : MoonTools.ECS.System
 
             foreach (var enemyEntity in _basicEnemyFilter.Entities)
             {
+                if(HasInRelation<Frozen>(enemyEntity))
+                {
+                    Set(enemyEntity, new Velocity(Vector2.Zero));
+                    continue;
+                }
+
                 var distanceAway = Get<DistanceCheck>(enemyEntity).Value;
                 var enemyPosition = Get<Position>(enemyEntity).Value;
                 var enemyToPlayerDistance = (enemyPosition - playerPosition).Length();

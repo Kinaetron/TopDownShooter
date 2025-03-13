@@ -25,6 +25,7 @@ public class PlayerController : MoonTools.ECS.System
             .Include<Position>()
             .Include<MaxSpeed>()
             .Include<Velocity>()
+            .Include<ColliderUnion>()
             .Include<Accerlation>()
             .Build();
     }
@@ -74,8 +75,13 @@ public class PlayerController : MoonTools.ECS.System
 
             if (_inputs.Mouse.LeftButton.IsPressed)
             {
+                var collider = Get<ColliderUnion>(entity);
+                var colliderRect = ColliderUnion.GetWorldCollider(position, collider).Rectangle;
+
                 var shotDirection = Vector2.Normalize(new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) - position);
-                _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, position, shotDirection);
+                var shotPosition = colliderRect.Center + shotDirection * 10;
+
+                _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, shotPosition, shotDirection);
             }
         }
     }

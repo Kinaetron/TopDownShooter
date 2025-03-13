@@ -2,6 +2,7 @@
 using MoonTools.ECS;
 using System.Numerics;
 using TopDownShooter.Components;
+using TopDownShooter.Messages;
 
 namespace TopDownShooter.Systems;
 
@@ -43,28 +44,19 @@ public class Motion : MoonTools.ECS.System
                     continue;
                 }
 
-                if(Has<CanBeFrozen>(velEntity) && Has<Freezes>(velEntity2))
+                if(Has<ColliderUnion>(velEntity) && 
+                   Has<ColliderUnion>(velEntity2))
                 {
-                     if(Has<ColliderUnion>(velEntity) && Has<ColliderUnion>(velEntity2))
-                     {
-                        var freezesTime = Get<Freezes>(velEntity2).Value;
+                    var collider1 = Get<ColliderUnion>(velEntity);
+                    collider1 = ColliderUnion.GetWorldCollider(position, collider1);
 
-                        var freezesCollder = Get<ColliderUnion>(velEntity2);
-                        var freezePosition = Get<Position>(velEntity2).Value;
+                    var collider2 = Get<ColliderUnion>(velEntity2);
+                    var colliderPosition2 = Get<Position>(velEntity2).Value;
+                    collider2 = ColliderUnion.GetWorldCollider(colliderPosition2, collider2);
 
-                        freezesCollder =  ColliderUnion.GetWorldCollider(freezePosition, freezesCollder);
-
-                        var canBeFrozenPosition = Get<Position>(velEntity).Value;
-                        var canBeFrozenCollider = Get<ColliderUnion>(velEntity);
-
-                        canBeFrozenCollider = ColliderUnion.GetWorldCollider(
-                            canBeFrozenPosition,
-                            canBeFrozenCollider);
-
-                        if (freezesCollder.CollidesWith(canBeFrozenCollider))
-                        {
-                            Set(velEntity, new Frozen(freezesTime));
-                        }
+                    if (collider1.CollidesWith(collider2))
+                    {
+                        Send(new Collided(velEntity, velEntity2));
                     }
                 }
             }
@@ -83,7 +75,7 @@ public class Motion : MoonTools.ECS.System
                 var velocityCollider = Get<ColliderUnion>(velEntity);
                 var velocityColliderWorld = ColliderUnion.GetWorldCollider(position, velocityCollider);
 
-                if(solidColliderWorld.Type == ColliderUnion.ColliderType.Rectangle && 
+                if (solidColliderWorld.Type == ColliderUnion.ColliderType.Rectangle && 
                    velocityColliderWorld.Type == ColliderUnion.ColliderType.Rectangle)
                 {
                     var collisionResult = 
@@ -100,6 +92,11 @@ public class Motion : MoonTools.ECS.System
                         var remainingVelocity = velocity - Vector2.Dot(velocity, collisionResult.Normal) * collisionResult.Normal;
                         velocity = remainingVelocity;
                     }
+                }
+
+                if (velocityColliderWorld.CollidesWith(solidColliderWorld))
+                {
+                    Send(new Collided(velEntity, solidEntity));
                 }
             }
 

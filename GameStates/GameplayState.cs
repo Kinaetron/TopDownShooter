@@ -19,6 +19,8 @@ public class GameplayState : GameState
 
     private Time _time;
     private Motion _motion;
+    private Freeze _freeze;
+    private Collision _collision;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
     private BulletController _bulletController;
@@ -41,7 +43,9 @@ public class GameplayState : GameState
 
         _world = new MoonTools.ECS.World();
         _time = new Time(_world);
+        _freeze = new Freeze(_world);
         _motion = new Motion(_world);
+        _collision = new Collision(_world);
         _basicEnemySystem = new BasicEnemySystem(_world);
         _bulletController = new BulletController(_world);
         _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
@@ -104,6 +108,8 @@ public class GameplayState : GameState
         _bulletController.Update(delta);
         _basicEnemySystem.Update(delta);
         _motion.Update(delta);
+        _collision.Update(delta);
+        _freeze.Update(delta);
 
         if (_world.SomeMessage<EndGame>())
         {
@@ -111,6 +117,8 @@ public class GameplayState : GameState
             _world.Dispose();
             _game.SetState(_transitionState);
         }
+
+        _world.FinishUpdate();
     }
 
     public override void Draw(double alpha)

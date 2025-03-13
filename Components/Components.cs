@@ -110,6 +110,7 @@ public readonly record struct ColliderUnion
 public readonly record struct Freezes(float Value);
 public readonly record struct CanBeFrozen();
 public readonly record struct Frozen(float Value);
+public readonly record struct MarkedToFreeze(float Value);
 public readonly record struct Solid();
 public readonly record struct Player();
 public readonly record struct BasicEnemy();
@@ -120,3 +121,4 @@ public readonly record struct Remainder(Vector2 Value);
 public readonly record struct MaxSpeed(float Value);
 public readonly record struct Position(Vector2 Value);
 public readonly record struct DistanceCheck(float Value);
+public readonly record struct DestroyOnHit();

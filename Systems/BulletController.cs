@@ -34,6 +34,7 @@ public class BulletController : MoonTools.ECS.System
         Set(bullet, new Direction(direction));
         Set(bullet, new Position(position));
         Set(bullet, new Freezes(1.0f));
+        Set(bullet, new DestroyOnHit());
     }
 
     public override void Update(TimeSpan delta)
