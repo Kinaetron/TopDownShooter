@@ -26,6 +26,7 @@ public class Freeze : MoonTools.ECS.System
                 var freezeTime = Get<MarkedToFreeze>(entity).Value;
                 var timer = CreateEntity();
                 Set(timer, new Timer(freezeTime));
+                Remove<MarkedToFreeze>(entity);
                 Relate(timer, entity, new Frozen());
             }
         }

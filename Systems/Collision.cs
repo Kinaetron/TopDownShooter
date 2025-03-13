@@ -22,6 +22,16 @@ public class Collision : MoonTools.ECS.System
                 var freezeTime = Get<Freezes>(collision.B).Value;
                 Set(collision.A, new MarkedToFreeze(freezeTime));
             }
+
+           if(Has<DestroyOnHit>(collision.A))
+           {
+                Set(collision.A, new MarkedToDestroy());
+           }
+
+           if(Has<DestroyOnHit>(collision.B))
+            {
+                Set(collision.B, new MarkedToDestroy());
+            }
         }
     }
 }

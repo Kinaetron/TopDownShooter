@@ -122,3 +122,4 @@ public readonly record struct MaxSpeed(float Value);
 public readonly record struct Position(Vector2 Value);
 public readonly record struct DistanceCheck(float Value);
 public readonly record struct DestroyOnHit();
+public readonly record struct MarkedToDestroy();

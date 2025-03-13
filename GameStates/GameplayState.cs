@@ -20,6 +20,7 @@ public class GameplayState : GameState
     private Time _time;
     private Motion _motion;
     private Freeze _freeze;
+    private Destroy _destroy;
     private Collision _collision;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
@@ -45,6 +46,7 @@ public class GameplayState : GameState
         _time = new Time(_world);
         _freeze = new Freeze(_world);
         _motion = new Motion(_world);
+        _destroy = new Destroy(_world);
         _collision = new Collision(_world);
         _basicEnemySystem = new BasicEnemySystem(_world);
         _bulletController = new BulletController(_world);
@@ -110,6 +112,7 @@ public class GameplayState : GameState
         _motion.Update(delta);
         _collision.Update(delta);
         _freeze.Update(delta);
+        _destroy.Update(delta);
 
         if (_world.SomeMessage<EndGame>())
         {
