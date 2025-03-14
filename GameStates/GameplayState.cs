@@ -14,15 +14,17 @@ public class GameplayState : GameState
 {
     private MoonTools.ECS.World _world;
 
-    private ShooterGame _game;
-    private GameState _transitionState;
+    private readonly ShooterGame _game;
+    private readonly GameState _transitionState;
 
     private Time _time;
     private Camera _camera;
     private Motion _motion;
     private Freeze _freeze;
     private Destroy _destroy;
+    private Spawner _spawner;
     private Collision _collision;
+    private SessionTime _sessionTime;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
     private BulletController _bulletController;
@@ -40,14 +42,18 @@ public class GameplayState : GameState
         var worldInformation = LdtkJson.FromJson(levelString);
         var level = worldInformation.Levels[0];
 
-        var collisionTiles = level.LayerInstances[0];
+        var entitiesLayer = level.LayerInstances[0];
+        var collisionTiles = level.LayerInstances[1];
 
         _world = new MoonTools.ECS.World();
         _time = new Time(_world);
+
         _freeze = new Freeze(_world);
         _motion = new Motion(_world);
+        _spawner = new Spawner(_world);
         _destroy = new Destroy(_world);
         _collision = new Collision(_world);
+        _sessionTime = new SessionTime(_world);
         _basicEnemySystem = new BasicEnemySystem(_world);
         _bulletController = new BulletController(_world);
         _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
@@ -80,6 +86,33 @@ public class GameplayState : GameState
             }
         }
 
+        foreach (var entity in entitiesLayer.EntityInstances)
+        {
+            if(entity.Identifier == "Player")
+            {
+                var player = _world.CreateEntity();
+                _world.Set(player, new Player());
+                _world.Set(player, Color.Green);
+                _world.Set(player, new Velocity(Vector2.Zero));
+                _world.Set(player, new Remainder(Vector2.Zero));
+                _world.Set(player, new Accerlation(1.0f * Constants.FRAME_RATE));
+                _world.Set(player, new MaxSpeed(2.0f * Constants.FRAME_RATE));
+                _world.Set(player, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
+                _world.Set(player, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+                _world.Set(player, new CanDieOnHit());
+            }
+
+            if(entity.Identifier == "Enemy")
+            {
+                var basicEnemy = _world.CreateEntity();
+                var spawnTime = (float)entity.FieldInstances[0].Value;
+
+                _world.Set(basicEnemy, new BasicEnemy());
+                _world.Set(basicEnemy, new SpawnTime(spawnTime));
+                _world.Set(basicEnemy, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+            }
+        }
+
         _camera = new Camera(
             levelSizeX,
             levelSizeY,
@@ -87,43 +120,18 @@ public class GameplayState : GameState
             _game.MainWindow.Height,
             _world);
 
-        var testBox = _world.CreateEntity();
-        _world.Set(testBox, new Solid());
-        _world.Set(testBox, Color.BurlyWood);
-        _world.Set(testBox, new ColliderUnion(new Rectangle(100, 100, 250, 100)));
-        _world.Set(testBox, new Position(new Vector2(250, 100)));
-
-        var player = _world.CreateEntity();
-        _world.Set(player, new Player());
-        _world.Set(player, Color.Green);
-        _world.Set(player, new Velocity(Vector2.Zero));
-        _world.Set(player, new Remainder(Vector2.Zero));
-        _world.Set(player, new Accerlation(1.0f * Constants.FRAME_RATE));
-        _world.Set(player, new MaxSpeed(2.0f * Constants.FRAME_RATE));
-        _world.Set(player, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
-        _world.Set(player, new Position(new Vector2(100, 100)));
-        _world.Set(player, new CanDieOnHit());
-
-        var basicEnemy = _world.CreateEntity();
-        _world.Set(basicEnemy, new BasicEnemy());
-        _world.Set(basicEnemy, Color.Red);
-        _world.Set(basicEnemy, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
-        _world.Set(basicEnemy, BasicEnemyState.Wait);
-        _world.Set(basicEnemy, new DistanceCheck(150));
-        _world.Set(basicEnemy, new Velocity(Vector2.Zero));
-        _world.Set(basicEnemy, new Accerlation(1 * Constants.FRAME_RATE));
-        _world.Set(basicEnemy, new MaxSpeed(1.0f * Constants.FRAME_RATE));
-        _world.Set(basicEnemy, new Position(new Vector2(20, 200)));
-        _world.Set(basicEnemy, new CanBeFrozen());
-        _world.Set(basicEnemy, new CanKillOnHit());
-
         var camera = _world.CreateEntity();
         _world.Set(camera, new Translate(Vector2.Zero));
+
+        var sessionTime = _world.CreateEntity();
+        _world.Set(sessionTime, new SessionTimer(0.0f));
     }
 
     public override void Update(TimeSpan delta)
     {
+        _sessionTime.Update(delta);
         _time.Update(delta);
+        _spawner.Update(delta);
         _playerController.Update(delta);
         _bulletController.Update(delta);
         _basicEnemySystem.Update(delta);
