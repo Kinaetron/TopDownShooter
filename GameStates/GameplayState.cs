@@ -112,6 +112,16 @@ public class GameplayState : GameState
                 _world.Set(rat, new SpawnTime(spawnTime));
                 _world.Set(rat, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
             }
+
+            if (entity.Identifier == "Dog")
+            {
+                var rat = _world.CreateEntity();
+                var spawnTime = (float)entity.FieldInstances[0].Value;
+
+                _world.Set(rat, new Dog());
+                _world.Set(rat, new SpawnTime(spawnTime));
+                _world.Set(rat, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+            }
         }
 
         _camera = new Camera(
