@@ -130,3 +130,4 @@ public readonly record struct SessionTimer(float Value);
 public readonly record struct SpawnTime(float Value);
 public readonly record struct Chaser();
 public readonly record struct Chased();
+public readonly record struct DisableShoot();

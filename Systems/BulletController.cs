@@ -22,7 +22,8 @@ public class BulletController : MoonTools.ECS.System
 
     public void SpawnBullet(
         float speed, 
-        float radius, 
+        float radius,
+        float freezeTime,
         Vector2 position, 
         Vector2 direction)
     {
@@ -33,7 +34,7 @@ public class BulletController : MoonTools.ECS.System
         Set(bullet, new Velocity(Vector2.Zero));
         Set(bullet, new Direction(direction));
         Set(bullet, new Position(position));
-        Set(bullet, new Freezes(1.0f));
+        Set(bullet, new Freezes(freezeTime));
         Set(bullet, new DestroyOnHit());
     }
 
