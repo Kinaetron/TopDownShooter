@@ -1,5 +1,4 @@
-﻿using Flam.Shapes;
-using MoonTools.ECS;
+﻿using MoonTools.ECS;
 using MoonWorks.Input;
 using System.Numerics;
 using TopDownShooter.Components;
@@ -23,10 +22,11 @@ public class PlayerController : MoonTools.ECS.System
         _playerFilter =
             FilterBuilder
             .Include<Player>()
+            .Include<Position>()
+            .Include<MaxSpeed>()
             .Include<Velocity>()
+            .Include<ColliderUnion>()
             .Include<Accerlation>()
-            .Include<MaxAcceleration>()
-            .Include<RectangleBounds>()
             .Build();
     }
 
@@ -34,10 +34,10 @@ public class PlayerController : MoonTools.ECS.System
     {
         foreach (var entity in _playerFilter.Entities)
         {
+            var position = Get<Position>(entity).Value;
             var velocity = Get<Velocity>(entity).Value;
-            var bounds = Get<RectangleBounds>(entity).Value;
+            var maxSpeed = Get<MaxSpeed>(entity).Value;
             var accerlation = Get<Accerlation>(entity).Value;
-            var maxAccerlation = Get<MaxAcceleration>(entity).Value;
 
             var deltaTime = (float)delta.TotalSeconds;
             var direction = new Vector2();
@@ -59,38 +59,34 @@ public class PlayerController : MoonTools.ECS.System
                 direction.Y = 1;
             }
 
-            if (direction.LengthSquared() > 1)
+            velocity += direction * accerlation * deltaTime;
+
+            if(velocity.Length() > maxSpeed * deltaTime)
             {
-                direction = Vector2.Normalize(direction);
+                velocity = Vector2.Normalize(velocity) * maxSpeed * deltaTime;
             }
 
-            if(_inputs.Mouse.LeftButton.IsPressed)
-            {
-                var shotDirection = Vector2.Normalize(new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) - bounds.Center);
-                _bulletController.SpawnBullet(10 * Time.FRAME_RATE, 5, bounds.Position, shotDirection);
-            }
-
-            velocity.X += direction.X * accerlation * deltaTime;
-            velocity.Y += direction.Y * accerlation * deltaTime;
-
-            if (direction == Vector2.Zero)
+            if(direction.LengthSquared() <= 0)
             {
                 velocity = Vector2.Zero;
             }
 
-
-            float maxSpeed = maxAccerlation * deltaTime;
-            if (velocity.Length() > maxSpeed)
-            {
-                velocity = Vector2.Normalize(velocity) * maxSpeed;
-            }
-
-
-            bounds.X += velocity.X;
-            bounds.Y += velocity.Y;
-
             Set(entity, new Velocity(velocity));
-            Set(entity, new RectangleBounds(new Rectangle(bounds.Width, bounds.Height, new Vector2(bounds.X, bounds.Y))));
+
+            if (_inputs.Mouse.LeftButton.IsPressed)
+            {
+                var cameraTranslation = GetSingleton<Translate>().Value;
+
+                var collider = Get<ColliderUnion>(entity);
+                var colliderRect = ColliderUnion.GetWorldCollider(position, collider).Rectangle;
+
+                var worldMousePosition = new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) + cameraTranslation;
+
+                var shotDirection = Vector2.Normalize(new Vector2(worldMousePosition.X, worldMousePosition.Y) - position);
+                var shotPosition = colliderRect.Center + shotDirection * 10;
+
+                _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, shotPosition, shotDirection);
+            }
         }
     }
 }

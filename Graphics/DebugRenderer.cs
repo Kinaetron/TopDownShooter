@@ -12,12 +12,10 @@ namespace TopDownShooter.Graphics;
 public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
-
-    private readonly MoonTools.ECS.Filter _playerFilter;
-    private readonly MoonTools.ECS.Filter _bulletFilter;
+    private readonly MoonTools.ECS.Filter _colliderFilter;
 
     public DebugRenderer(
-        uint resolutionX, 
+        uint resolutionX,
         uint resolutionY,
         TitleStorage titleStorage,
         Window window,
@@ -25,15 +23,10 @@ public class DebugRenderer : Renderer
         World world) : 
         base(world)
     {
-        _playerFilter = FilterBuilder
-            .Include<Player>()
+        _colliderFilter = FilterBuilder
             .Include<Color>()
-            .Include<RectangleBounds>()
-            .Build();
-
-        _bulletFilter = FilterBuilder
-            .Include<Bullet>()
-            .Include<CircleBounds>()
+            .Include<Position>()
+            .Include<ColliderUnion>()
             .Build();
 
         _shapeBatcher = new ShapeBatcher(
@@ -46,21 +39,31 @@ public class DebugRenderer : Renderer
 
     public void Render(double alpha)
     {
-        _shapeBatcher.Begin(Color.CornflowerBlue, Matrix4x4.Identity);
+        var translation = GetSingleton<Translate>().Value;
+        Matrix4x4 cameraMatrix = Matrix4x4.CreateTranslation(new Vector3(-translation.X, -translation.Y, 0));
 
-        foreach(var playerEntity in _playerFilter.Entities)
+        _shapeBatcher.Begin(Color.CornflowerBlue, cameraMatrix);
+
+        foreach(var entites in _colliderFilter.Entities)
         {
-            var color = Get<Color>(playerEntity);
-            var bounds = Get<RectangleBounds>(playerEntity).Value;
+            var color = Get<Color>(entites);
+            var collider = Get<ColliderUnion>(entites);
+            var position = Get<Position>(entites).Value;
 
-            _shapeBatcher.DrawFilledRectangle(bounds, MathHelper.TwoPi, color);
-        }
+            var colliderWorld = ColliderUnion.GetWorldCollider(position, collider);
 
-        foreach (var bulletEntity in _bulletFilter.Entities)
-        {
-            var bounds = Get<CircleBounds>(bulletEntity).Value;
+            switch (colliderWorld.Type)
+            {
+                case ColliderUnion.ColliderType.Rectangle:
+                    _shapeBatcher.DrawFilledRectangle(colliderWorld.Rectangle, MathHelper.TwoPi, color);
+                    break;
 
-            _shapeBatcher.DrawLineCircle(bounds, Color.Red);
+                case ColliderUnion.ColliderType.Circle:
+                    _shapeBatcher.DrawLineCircle(colliderWorld.Circle, color);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         _shapeBatcher.End();
