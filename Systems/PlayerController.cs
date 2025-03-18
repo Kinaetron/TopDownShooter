@@ -3,6 +3,7 @@ using MoonWorks.Input;
 using System.Numerics;
 using TopDownShooter.Components;
 using TopDownShooter.Utility;
+using Timer = TopDownShooter.Components.Timer;
 
 namespace TopDownShooter.Systems;
 
@@ -73,8 +74,13 @@ public class PlayerController : MoonTools.ECS.System
 
             Set(entity, new Velocity(velocity));
 
-            if (_inputs.Mouse.LeftButton.IsPressed)
+            if(_inputs.Mouse.LeftButton.IsPressed || _inputs.Mouse.RightButton.IsPressed)
             {
+                if (HasInRelation<DisableShoot>(entity))
+                {
+                    continue;
+                }
+
                 var cameraTranslation = GetSingleton<Translate>().Value;
 
                 var collider = Get<ColliderUnion>(entity);
@@ -83,9 +89,26 @@ public class PlayerController : MoonTools.ECS.System
                 var worldMousePosition = new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) + cameraTranslation;
 
                 var shotDirection = Vector2.Normalize(new Vector2(worldMousePosition.X, worldMousePosition.Y) - position);
-                var shotPosition = colliderRect.Center + shotDirection * 10;
 
-                _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, shotPosition, shotDirection);
+                if(_inputs.Mouse.LeftButton.IsPressed)
+                {
+                    var shotPosition = colliderRect.Center + shotDirection * 10;
+                    _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, 1.0f, shotPosition, shotDirection);
+
+                    var timer = CreateEntity();
+                    Set(timer, new Timer(0.15f));
+                    Relate(timer, entity, new DisableShoot());
+                }
+
+                if(_inputs.Mouse.RightButton.IsPressed)
+                {
+                    var shotPosition = colliderRect.Center + shotDirection * 20;
+                    _bulletController.SpawnBullet(7 * Constants.FRAME_RATE, 7, 5.0f, shotPosition, shotDirection);
+
+                    var timer = CreateEntity();
+                    Set(timer, new Timer(2.0f));
+                    Relate(timer, entity, new DisableShoot());
+                }
             }
         }
     }
