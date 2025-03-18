@@ -28,30 +28,22 @@ public class Camera : MoonTools.ECS.System
             FilterBuilder
             .Include<Translate>()
             .Build();
-
-        _playerFilter =
-            FilterBuilder
-            .Include<Player>()
-            .Include<Position>()
-            .Build();
     }
 
     public override void Update(TimeSpan delta)
     {
-        foreach (var playerEntity in _playerFilter.Entities)
+        var posEntity = GetSingletonEntity<Player>();
+        var position = Get<Position>(posEntity).Value;
+
+        foreach (var cameraEntity in _cameraFilter.Entities)
         {
-            var position = Get<Position>(playerEntity).Value;
+            var translate = position;
+            translate.X = float.Clamp(translate.X, _screenSize.X / 2, _levelSize.X - _screenSize.X / 2);
+            translate.Y = float.Clamp(translate.Y, _screenSize.Y / 2, _levelSize.Y - _screenSize.Y / 2);
 
-            foreach (var cameraEntity in _cameraFilter.Entities)
-            {
-                var translate = position;
-                translate.X = float.Clamp(translate.X, _screenSize.X / 2, _levelSize.X - _screenSize.X / 2);
-                translate.Y = float.Clamp(translate.Y, _screenSize.Y / 2, _levelSize.Y - _screenSize.Y / 2);
+            translate -= new Vector2(_screenSize.X / 2, _screenSize.Y / 2);
 
-                translate -= new Vector2(_screenSize.X / 2, _screenSize.Y / 2);
-
-                Set(cameraEntity, new Translate(translate));
-            }
+            Set(cameraEntity, new Translate(translate));
         }
     }
 }

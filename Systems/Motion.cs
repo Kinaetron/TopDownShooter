@@ -44,19 +44,37 @@ public class Motion : MoonTools.ECS.System
                     continue;
                 }
 
-                if(Has<ColliderUnion>(velEntity) && 
+                var position2 = Get<Position>(velEntity2).Value;
+
+                if (Has<ColliderUnion>(velEntity) && 
                    Has<ColliderUnion>(velEntity2))
                 {
                     var collider1 = Get<ColliderUnion>(velEntity);
                     collider1 = ColliderUnion.GetWorldCollider(position, collider1);
 
                     var collider2 = Get<ColliderUnion>(velEntity2);
-                    var colliderPosition2 = Get<Position>(velEntity2).Value;
-                    collider2 = ColliderUnion.GetWorldCollider(colliderPosition2, collider2);
+
+                    collider2 = ColliderUnion.GetWorldCollider(position2, collider2);
 
                     if (collider1.CollidesWith(collider2))
                     {
                         Send(new Collided(velEntity, velEntity2));
+                    }
+                }
+
+                if(Has<Chased>(velEntity) && 
+                   Has<Chaser>(velEntity2))
+                {
+                    var vel1ToVel2Distance = (position - position2).Length();
+                    var distanceAwayToChase = Get<DistanceCheck>(velEntity2).Value;
+
+                    if(vel1ToVel2Distance <= distanceAwayToChase)
+                    {
+                        Send(new ChaseTowards(velEntity2, Vector2.Normalize(position - position2)));
+                    }
+                    else
+                    {
+                        Send(new ChaseStop(velEntity2));
                     }
                 }
             }

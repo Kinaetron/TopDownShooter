@@ -28,7 +28,7 @@ public class GameplayState : GameState
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
     private BulletController _bulletController;
-    private BasicEnemySystem _basicEnemySystem;
+    private Chase _chase;
 
     public GameplayState(ShooterGame game, GameState transitionState)
     {
@@ -48,13 +48,13 @@ public class GameplayState : GameState
         _world = new MoonTools.ECS.World();
         _time = new Time(_world);
 
+        _chase = new Chase(_world);
         _freeze = new Freeze(_world);
         _motion = new Motion(_world);
         _spawner = new Spawner(_world);
         _destroy = new Destroy(_world);
         _collision = new Collision(_world);
         _sessionTime = new SessionTime(_world);
-        _basicEnemySystem = new BasicEnemySystem(_world);
         _bulletController = new BulletController(_world);
         _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
         _debugRenderer = new DebugRenderer(
@@ -100,16 +100,17 @@ public class GameplayState : GameState
                 _world.Set(player, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
                 _world.Set(player, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
                 _world.Set(player, new CanDieOnHit());
+                _world.Set(player, new Chased());
             }
 
-            if(entity.Identifier == "Enemy")
+            if(entity.Identifier == "Rat")
             {
-                var basicEnemy = _world.CreateEntity();
+                var rat = _world.CreateEntity();
                 var spawnTime = (float)entity.FieldInstances[0].Value;
 
-                _world.Set(basicEnemy, new BasicEnemy());
-                _world.Set(basicEnemy, new SpawnTime(spawnTime));
-                _world.Set(basicEnemy, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+                _world.Set(rat, new Rat());
+                _world.Set(rat, new SpawnTime(spawnTime));
+                _world.Set(rat, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
             }
         }
 
@@ -134,10 +135,10 @@ public class GameplayState : GameState
         _spawner.Update(delta);
         _playerController.Update(delta);
         _bulletController.Update(delta);
-        _basicEnemySystem.Update(delta);
         _motion.Update(delta);
         _collision.Update(delta);
         _freeze.Update(delta);
+        _chase.Update(delta);
         _destroy.Update(delta);
         _camera.Update(delta);
 

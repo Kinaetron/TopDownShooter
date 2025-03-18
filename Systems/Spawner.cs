@@ -27,11 +27,11 @@ public class Spawner : MoonTools.ECS.System
         {
             var spawnTime = Get<SpawnTime>(entity).Value;
 
-            if (Has<BasicEnemy>(entity) && sesstionTime >= spawnTime)
+            if (Has<Rat>(entity) && sesstionTime >= spawnTime)
             {
                 Set(entity, Color.Red);
-                Set(entity, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
-                Set(entity, BasicEnemyState.Wait);
+                Set(entity, new ColliderUnion(new Rectangle(8, 8, 0, 0)));
+                Set(entity, new Chaser());
                 Set(entity, new DistanceCheck(150));
                 Set(entity, new Velocity(Vector2.Zero));
                 Set(entity, new Accerlation(1 * Constants.FRAME_RATE));
