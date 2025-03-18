@@ -40,6 +40,20 @@ public class Spawner : MoonTools.ECS.System
                 Set(entity, new CanKillOnHit());
                 Remove<SpawnTime>(entity);
             }
+
+            if (Has<Dog>(entity) && sesstionTime >= spawnTime)
+            {
+                Set(entity, Color.Beige);
+                Set(entity, new ColliderUnion(new Rectangle(16, 16, 0, 0)));
+                Set(entity, new Chaser());
+                Set(entity, new DistanceCheck(200));
+                Set(entity, new Velocity(Vector2.Zero));
+                Set(entity, new Accerlation(1 * Constants.FRAME_RATE));
+                Set(entity, new MaxSpeed(2.0f * Constants.FRAME_RATE));
+                Set(entity, new CanBeFrozen());
+                Set(entity, new CanKillOnHit());
+                Remove<SpawnTime>(entity);
+            }
         }
     }
 }
