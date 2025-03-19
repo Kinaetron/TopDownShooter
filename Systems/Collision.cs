@@ -24,7 +24,7 @@ public class Collision : MoonTools.ECS.System
             }
 
            if(Has<CanDieOnHit>(collision.A) &&
-               Has<CanKillOnHit>(collision.B))
+              Has<CanKillOnHit>(collision.B))
             {
                 Send(new EndGame());
             }
@@ -35,9 +35,9 @@ public class Collision : MoonTools.ECS.System
            }
 
            if(Has<DestroyOnHit>(collision.B))
-            {
+           {
                 Set(collision.B, new MarkedToDestroy());
-            }
+           }
         }
     }
 }

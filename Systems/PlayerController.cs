@@ -87,7 +87,6 @@ public class PlayerController : MoonTools.ECS.System
                 var colliderRect = ColliderUnion.GetWorldCollider(position, collider).Rectangle;
 
                 var worldMousePosition = new Vector2(_inputs.Mouse.X, _inputs.Mouse.Y) + cameraTranslation;
-
                 var shotDirection = Vector2.Normalize(new Vector2(worldMousePosition.X, worldMousePosition.Y) - position);
 
                 if(_inputs.Mouse.LeftButton.IsPressed)

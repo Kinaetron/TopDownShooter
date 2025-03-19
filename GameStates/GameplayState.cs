@@ -24,6 +24,7 @@ public class GameplayState : GameState
     private Destroy _destroy;
     private Spawner _spawner;
     private Collision _collision;
+    private Projectile _projectile;
     private SessionTime _sessionTime;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
@@ -54,6 +55,7 @@ public class GameplayState : GameState
         _spawner = new Spawner(_world);
         _destroy = new Destroy(_world);
         _collision = new Collision(_world);
+        _projectile = new Projectile(_world);
         _sessionTime = new SessionTime(_world);
         _bulletController = new BulletController(_world);
         _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
@@ -122,6 +124,16 @@ public class GameplayState : GameState
                 _world.Set(rat, new SpawnTime(spawnTime));
                 _world.Set(rat, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
             }
+
+            if(entity.Identifier == "Turret")
+            {
+                var turret = _world.CreateEntity();
+                var spawnTime = (float)entity.FieldInstances[0].Value;
+
+                _world.Set(turret, new Turret());
+                _world.Set(turret, new SpawnTime(spawnTime));
+                _world.Set(turret, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+            }
         }
 
         _camera = new Camera(
@@ -147,6 +159,7 @@ public class GameplayState : GameState
         _bulletController.Update(delta);
         _motion.Update(delta);
         _collision.Update(delta);
+        _projectile.Update(delta);
         _freeze.Update(delta);
         _chase.Update(delta);
         _destroy.Update(delta);
