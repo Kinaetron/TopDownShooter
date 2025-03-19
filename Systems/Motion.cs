@@ -62,13 +62,25 @@ public class Motion : MoonTools.ECS.System
                     }
                 }
 
-                if(Has<Chased>(velEntity) && 
+                var vel1ToVel2Distance = (position - position2).Length();
+                var distanceAway = Has<DistanceCheck>(velEntity2) ? 
+                    Get<DistanceCheck>(velEntity2).Value : 
+                    float.MaxValue;
+
+                if(Has<Player>(velEntity) &&
+                   Has<ProjectileCreator>(velEntity2))
+                {
+                    if (vel1ToVel2Distance <= distanceAway)
+                    {
+                        Send(new CreateProjectile(velEntity2, Vector2.Normalize(position - position2)));
+                    }
+                }
+
+                if (Has<Chased>(velEntity) && 
                    Has<Chaser>(velEntity2))
                 {
-                    var vel1ToVel2Distance = (position - position2).Length();
-                    var distanceAwayToChase = Get<DistanceCheck>(velEntity2).Value;
-
-                    if(vel1ToVel2Distance <= distanceAwayToChase)
+                 
+                    if(vel1ToVel2Distance <= distanceAway)
                     {
                         Send(new ChaseTowards(velEntity2, Vector2.Normalize(position - position2)));
                     }

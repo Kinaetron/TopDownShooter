@@ -54,6 +54,29 @@ public class Spawner : MoonTools.ECS.System
                 Set(entity, new CanKillOnHit());
                 Remove<SpawnTime>(entity);
             }
+
+            if(Has<Turret>(entity) && sesstionTime >= spawnTime)
+            {
+                var collider = new ColliderUnion(new Rectangle(16, 16, 0, 0));
+                var position = Get<Position>(entity).Value;
+
+                var center = ColliderUnion.GetWorldCollider(position, collider).Rectangle.Center;
+
+                Set(entity, Color.Yellow);
+                Set(entity, collider);
+                Set(entity, new DistanceCheck(300));
+                Set(entity, new Velocity(Vector2.Zero));
+                Set(entity, new CanBeFrozen());
+                Set(entity, new Solid());
+                Set(entity, new ProjectileCreator());
+                Set(entity, new Radius(5.0f));
+                Set(entity, new MaxSpeed(5.0f * Constants.FRAME_RATE));
+                Set(entity, new DisableTime(2.0f));
+                Set(entity, new ShootAwayFromPosition(15));
+                Set(entity, new Center(center));
+                Set(entity, new CanBeFrozen());
+                Remove<SpawnTime>(entity);
+            }
         }
     }
 }
