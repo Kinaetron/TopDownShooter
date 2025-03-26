@@ -89,6 +89,29 @@ public class Motion : MoonTools.ECS.System
                         Send(new ChaseStop(velEntity2));
                     }
                 }
+
+                if(Has<CanDieOnHit>(velEntity) &&
+                   Has<ExplosionTrigger>(velEntity2))
+                {
+                    var explosionTrigger = Get<ExplosionTrigger>(velEntity2).Value;
+                    if(vel1ToVel2Distance <= explosionTrigger)
+                    {
+                        Send(new InitializeExplosion(velEntity2));
+                    }
+                }
+
+                if(Has<Exploding>(velEntity2) && 
+                  !HasInRelation<ExplosionCountDown>(velEntity2) && 
+                   Has<CanDieOnHit>(velEntity))
+                {
+                    var colliderDie = Get<ColliderUnion>(velEntity);
+                    colliderDie = ColliderUnion.GetWorldCollider(position, colliderDie);
+
+                    var explosionRadius = Get<ExplosionRadius>(velEntity2).Value;
+                    var radiusCollider = new ColliderUnion(explosionRadius);
+
+                    Send(new Exploded(velEntity2, colliderDie.CollidesWith(radiusCollider)));
+                }
             }
 
             foreach (var solidEntity in _solidFilter.Entities)

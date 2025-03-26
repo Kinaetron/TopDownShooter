@@ -30,7 +30,6 @@ public readonly record struct ColliderUnion
     public Circle Circle { get; }
     public LineSegment LineSegment { get; }
     public Rectangle Rectangle { get; }
-
     public ColliderUnion(Circle circle)
     {
         Type = ColliderType.Circle;
@@ -138,3 +137,10 @@ public readonly record struct Radius(float Value);
 public readonly record struct DisableTime(float Value);
 public readonly record struct ShootAwayFromPosition(float Value);
 public readonly record struct Center(Vector2 Value);
+public readonly record struct ShotDistanceCheck(float Value);
+public readonly record struct CreatesBullets();
+public readonly record struct Blob();
+public readonly record struct ExplosionTrigger(float Value);
+public readonly record struct ExplosionCountDown();
+public readonly record struct ExplosionRadius(Circle Value);
+public readonly record struct Exploding();

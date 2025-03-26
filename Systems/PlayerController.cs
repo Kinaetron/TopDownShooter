@@ -2,7 +2,6 @@
 using MoonWorks.Input;
 using System.Numerics;
 using TopDownShooter.Components;
-using TopDownShooter.Utility;
 using Timer = TopDownShooter.Components.Timer;
 
 namespace TopDownShooter.Systems;
@@ -10,15 +9,15 @@ namespace TopDownShooter.Systems;
 public class PlayerController : MoonTools.ECS.System
 {
     private readonly Inputs _inputs;
-    private readonly BulletController _bulletController;
+    private readonly ProjectileController _projectileController;
 
     private readonly Filter _playerFilter;
 
-    public PlayerController(BulletController bulletController, Inputs inputs, World world)
+    public PlayerController(ProjectileController projectileController, Inputs inputs, World world)
         :base(world)
     {
         _inputs = inputs;
-        _bulletController = bulletController;
+        _projectileController = projectileController;
 
         _playerFilter =
             FilterBuilder
@@ -92,7 +91,7 @@ public class PlayerController : MoonTools.ECS.System
                 if(_inputs.Mouse.LeftButton.IsPressed)
                 {
                     var shotPosition = colliderRect.Center + shotDirection * 10;
-                    _bulletController.SpawnBullet(10 * Constants.FRAME_RATE, 5, 1.0f, shotPosition, shotDirection);
+                    _projectileController.SpawnNormalBullet(shotPosition, shotDirection);
 
                     var timer = CreateEntity();
                     Set(timer, new Timer(0.15f));
@@ -102,7 +101,7 @@ public class PlayerController : MoonTools.ECS.System
                 if(_inputs.Mouse.RightButton.IsPressed)
                 {
                     var shotPosition = colliderRect.Center + shotDirection * 20;
-                    _bulletController.SpawnBullet(7 * Constants.FRAME_RATE, 7, 5.0f, shotPosition, shotDirection);
+                    _projectileController.SpawnSpecialBullet(shotPosition, shotDirection);
 
                     var timer = CreateEntity();
                     Set(timer, new Timer(2.0f));

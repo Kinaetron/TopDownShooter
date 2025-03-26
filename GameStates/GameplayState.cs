@@ -22,13 +22,14 @@ public class GameplayState : GameState
     private Motion _motion;
     private Freeze _freeze;
     private Destroy _destroy;
+    private Explode _explode;
     private Spawner _spawner;
     private Collision _collision;
-    private Projectile _projectile;
     private SessionTime _sessionTime;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
-    private BulletController _bulletController;
+    private ProjectileCreate _projectileCreate;
+    private ProjectileController _projectileController;
     private Chase _chase;
 
     public GameplayState(ShooterGame game, GameState transitionState)
@@ -52,13 +53,14 @@ public class GameplayState : GameState
         _chase = new Chase(_world);
         _freeze = new Freeze(_world);
         _motion = new Motion(_world);
+        _explode = new Explode(_world);
         _spawner = new Spawner(_world);
         _destroy = new Destroy(_world);
         _collision = new Collision(_world);
-        _projectile = new Projectile(_world);
         _sessionTime = new SessionTime(_world);
-        _bulletController = new BulletController(_world);
-        _playerController = new PlayerController(_bulletController, _game.Inputs, _world);
+        _projectileController = new ProjectileController(_world);
+        _projectileCreate = new ProjectileCreate(_projectileController, _world);
+        _playerController = new PlayerController(_projectileController, _game.Inputs, _world);
         _debugRenderer = new DebugRenderer(
             _game.MainWindow.Width,
             _game.MainWindow.Height,
@@ -134,6 +136,16 @@ public class GameplayState : GameState
                 _world.Set(turret, new SpawnTime(spawnTime));
                 _world.Set(turret, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
             }
+
+            if(entity.Identifier == "Blob")
+            {
+                var blob = _world.CreateEntity();
+                var spawnTime = (float)entity.FieldInstances[0].Value;
+
+                _world.Set(blob, new Blob());
+                _world.Set(blob, new SpawnTime(spawnTime));
+                _world.Set(blob, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
+            }
         }
 
         _camera = new Camera(
@@ -156,12 +168,13 @@ public class GameplayState : GameState
         _time.Update(delta);
         _spawner.Update(delta);
         _playerController.Update(delta);
-        _bulletController.Update(delta);
+        _projectileController.Update(delta);
         _motion.Update(delta);
+        _projectileCreate.Update(delta);
         _collision.Update(delta);
-        _projectile.Update(delta);
         _freeze.Update(delta);
         _chase.Update(delta);
+        _explode.Update(delta);
         _destroy.Update(delta);
         _camera.Update(delta);
 
