@@ -13,6 +13,7 @@ public class DebugRenderer : Renderer
 {
     private readonly ShapeBatcher _shapeBatcher;
     private readonly MoonTools.ECS.Filter _colliderFilter;
+    private readonly MoonTools.ECS.Filter _explosionRadiusFilter;
 
     public DebugRenderer(
         uint resolutionX,
@@ -27,6 +28,10 @@ public class DebugRenderer : Renderer
             .Include<Color>()
             .Include<Position>()
             .Include<ColliderUnion>()
+            .Build();
+
+        _explosionRadiusFilter = FilterBuilder
+            .Include<ExplosionRadius>()
             .Build();
 
         _shapeBatcher = new ShapeBatcher(
@@ -64,6 +69,12 @@ public class DebugRenderer : Renderer
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        foreach (var entity in _explosionRadiusFilter.Entities)
+        {
+            var explosionCircle = Get<ExplosionRadius>(entity).Value;
+            _shapeBatcher.DrawLineCircle(explosionCircle, Color.DarkKhaki);
         }
 
         _shapeBatcher.End();
