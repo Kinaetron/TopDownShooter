@@ -12,3 +12,4 @@ public readonly record struct CreateProjectile(Entity Entity, Vector2 Direction)
 public readonly record struct InitializeExplosion(Entity Entity);
 public readonly record struct Exploded(Entity Entity, bool MarkDeath);
 public readonly record struct OffsetChaseTowards(Entity Entity);
+public readonly record struct OffsetChaseStop(Entity Entity);

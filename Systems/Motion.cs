@@ -92,6 +92,10 @@ public class Motion : MoonTools.ECS.System
                     {
                         Send(new OffsetChaseTowards(velEntity2));
                     }
+                    else
+                    {
+                        Send(new OffsetChaseStop(velEntity2));
+                    }
                 }
 
                 //if (Has<Chased>(velEntity) && 

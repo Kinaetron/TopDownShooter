@@ -34,5 +34,14 @@ public class ChaseOffset : MoonTools.ECS.System
             var velocity = maxSpeed * direction * deltaTime;
             Set(message.Entity, new Velocity(velocity));
         }
+
+        foreach (var stopChase in ReadMessages<OffsetChaseStop>())
+        {
+            var targetEntity = OutRelationSingleton<ChasingOffSet>(stopChase.Entity);
+
+            Remove<OffsetOccupied>(targetEntity);
+            Set(stopChase.Entity, new Velocity(Vector2.Zero));
+            Unrelate<ChasingOffSet>(stopChase.Entity, targetEntity);
+        }
     }
 }

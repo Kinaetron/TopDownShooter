@@ -504,19 +504,19 @@
 						},
 						{
 							"__identifier": "Rat",
-							"__grid": [7,7],
+							"__grid": [11,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
 							"__smartColor": "#BE4A2F",
-							"iid": "4bc026a0-e920-11ef-9537-013ef0505ba1",
+							"iid": "e82c5700-e920-11ef-8812-f94e5f08fdeb",
 							"width": 8,
 							"height": 8,
 							"defUid": 4,
-							"px": [112,112],
-							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 5, "realEditorValues": [] }],
-							"__worldX": 112,
-							"__worldY": 112
+							"px": [176,176],
+							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 1, "__tile": null, "defUid": 5, "realEditorValues": [{ "id": "V_Float", "params": [1] }] }],
+							"__worldX": 176,
+							"__worldY": 176
 						}
 					]
 				},
