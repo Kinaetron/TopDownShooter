@@ -76,21 +76,39 @@ public class Motion : MoonTools.ECS.System
                     }
                 }
 
-                if (Has<Chased>(velEntity) && 
-                   Has<Chaser>(velEntity2))
+                if(Has<OffsetChaser>(velEntity2) && 
+                  !HasOutRelation<ChasingOffSet>(velEntity2))
                 {
-                 
-                    if(vel1ToVel2Distance <= distanceAway)
+                    if (vel1ToVel2Distance <= distanceAway)
                     {
-                        Send(new ChaseTowards(velEntity2, Vector2.Normalize(position - position2)));
-                    }
-                    else
-                    {
-                        Send(new ChaseStop(velEntity2));
+                        Send(new SelectChaseOffSet(velEntity2));
                     }
                 }
 
-                if(Has<CanDieOnHit>(velEntity) &&
+                if (Has<OffsetChaser>(velEntity2) &&
+                    HasOutRelation<ChasingOffSet>(velEntity2))
+                {
+                    if (vel1ToVel2Distance <= distanceAway)
+                    {
+                        Send(new OffsetChaseTowards(velEntity2));
+                    }
+                }
+
+                //if (Has<Chased>(velEntity) && 
+                //    Has<Chaser>(velEntity2))
+                //{
+
+                //    if(vel1ToVel2Distance <= distanceAway)
+                //    {
+                //        Send(new ChaseTowards(velEntity2, Vector2.Normalize(position - position2)));
+                //    }
+                //    else
+                //    {
+                //        Send(new ChaseStop(velEntity2));
+                //    }
+                //}
+
+                if (Has<CanDieOnHit>(velEntity) &&
                    Has<ExplosionTrigger>(velEntity2))
                 {
                     var explosionTrigger = Get<ExplosionTrigger>(velEntity2).Value;

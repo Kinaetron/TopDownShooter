@@ -2,6 +2,7 @@
 using Flam.Collision;
 
 using System.Numerics;
+using MoonTools.ECS;
 
 namespace TopDownShooter.Components;
 
@@ -144,3 +145,9 @@ public readonly record struct ExplosionTrigger(float Value);
 public readonly record struct ExplosionCountDown();
 public readonly record struct ExplosionRadius(Circle Value);
 public readonly record struct Exploding();
+public readonly record struct OffsetChase();
+public readonly record struct OffsetChaseTarget();
+public readonly record struct OffsetPosition(Vector2 Value);
+public readonly record struct OffsetChaser();
+public readonly record struct OffsetOccupied();
+public readonly record struct ChasingOffSet();

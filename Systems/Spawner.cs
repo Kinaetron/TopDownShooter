@@ -40,6 +40,7 @@ public class Spawner : MoonTools.ECS.System
                     Set(entity, new MaxSpeed(1.5f * Constants.FRAME_RATE));
                     Set(entity, new CanBeFrozen());
                     Set(entity, new CanKillOnHit());
+                    Set(entity, new OffsetChaser());
                     Remove<SpawnTime>(entity);
                 }
 
@@ -54,6 +55,7 @@ public class Spawner : MoonTools.ECS.System
                     Set(entity, new MaxSpeed(2.0f * Constants.FRAME_RATE));
                     Set(entity, new CanBeFrozen());
                     Set(entity, new CanKillOnHit());
+                    Set(entity, new OffsetChaser());
                     Remove<SpawnTime>(entity);
                 }
 
@@ -93,6 +95,7 @@ public class Spawner : MoonTools.ECS.System
                     Set(entity, new CanBeFrozen());
                     Set(entity, new CanKillOnHit());
                     Set(entity, new ExplosionTrigger(50.0f));
+                    Set(entity, new OffsetChaser());
                     Remove<SpawnTime>(entity);
                 }
             }

@@ -503,20 +503,20 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "Blob",
-							"__grid": [18,10],
+							"__identifier": "Rat",
+							"__grid": [7,7],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
-							"__smartColor": "#FEE761",
-							"iid": "85186a00-e920-11ef-8668-cd4d89fcb023",
-							"width": 16,
-							"height": 16,
-							"defUid": 12,
-							"px": [288,160],
-							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 13, "realEditorValues": [] }],
-							"__worldX": 288,
-							"__worldY": 160
+							"__smartColor": "#BE4A2F",
+							"iid": "4bc026a0-e920-11ef-9537-013ef0505ba1",
+							"width": 8,
+							"height": 8,
+							"defUid": 4,
+							"px": [112,112],
+							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 5, "realEditorValues": [] }],
+							"__worldX": 112,
+							"__worldY": 112
 						}
 					]
 				},

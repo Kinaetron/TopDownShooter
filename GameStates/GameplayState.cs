@@ -25,10 +25,13 @@ public class GameplayState : GameState
     private Explode _explode;
     private Spawner _spawner;
     private Collision _collision;
+    private ChaseOffset _chaseOffset;
     private SessionTime _sessionTime;
     private DebugRenderer _debugRenderer;
     private PlayerController _playerController;
     private ProjectileCreate _projectileCreate;
+    private ChaseOffSetPosition _offsetPosition;
+    private SelectChaseOffset _selectChaseOffset;
     private ProjectileController _projectileController;
     private Chase _chase;
 
@@ -57,7 +60,10 @@ public class GameplayState : GameState
         _spawner = new Spawner(_world);
         _destroy = new Destroy(_world);
         _collision = new Collision(_world);
+        _chaseOffset = new ChaseOffset(_world);
         _sessionTime = new SessionTime(_world);
+        _offsetPosition = new ChaseOffSetPosition(_world);
+        _selectChaseOffset = new SelectChaseOffset(_world);
         _projectileController = new ProjectileController(_world);
         _projectileCreate = new ProjectileCreate(_projectileController, _world);
         _playerController = new PlayerController(_projectileController, _game.Inputs, _world);
@@ -105,6 +111,25 @@ public class GameplayState : GameState
                 _world.Set(player, new Position(new Vector2((float)entity.WorldX, (float)entity.WorldY)));
                 _world.Set(player, new CanDieOnHit());
                 _world.Set(player, new Chased());
+                _world.Set(player, new OffsetChaseTarget());
+
+                var distance = 60.0f;
+                var numberOfChasePoints = 10;
+                var angleStep = (2 * Math.PI / numberOfChasePoints);
+
+                for (int i = 0; i < numberOfChasePoints; i++)
+                {
+                    var chaseOffSet = _world.CreateEntity();
+                    _world.Set(chaseOffSet, Color.Green);
+                    _world.Set(chaseOffSet, new OffsetChase());
+
+                    var angle = i * angleStep;
+                    var offsetX = distance * (float)Math.Cos(angle);
+                    var offsetY = distance * (float)Math.Sin(angle);
+                    var offsetPosition = new Vector2(offsetX, offsetY);
+                    _world.Set(chaseOffSet, new OffsetPosition(offsetPosition));
+                    _world.Set(chaseOffSet, new ColliderUnion(new Circle(4, Vector2.Zero)));
+                }
             }
 
             if(entity.Identifier == "Rat")
@@ -173,6 +198,9 @@ public class GameplayState : GameState
         _projectileCreate.Update(delta);
         _collision.Update(delta);
         _freeze.Update(delta);
+        _offsetPosition.Update(delta);
+        _selectChaseOffset.Update(delta);
+        _chaseOffset.Update(delta);
         _chase.Update(delta);
         _explode.Update(delta);
         _destroy.Update(delta);
