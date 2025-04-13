@@ -517,6 +517,22 @@
 							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 1, "__tile": null, "defUid": 5, "realEditorValues": [{ "id": "V_Float", "params": [1] }] }],
 							"__worldX": 176,
 							"__worldY": 176
+						},
+						{
+							"__identifier": "Rat",
+							"__grid": [19,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#BE4A2F",
+							"iid": "2ade27b0-1030-11f0-a5ce-7752deb5f995",
+							"width": 8,
+							"height": 8,
+							"defUid": 4,
+							"px": [304,80],
+							"fieldInstances": [{ "__identifier": "SpawnTime", "__type": "Float", "__value": 2, "__tile": null, "defUid": 5, "realEditorValues": [{ "id": "V_Float", "params": [2] }] }],
+							"__worldX": 304,
+							"__worldY": 80
 						}
 					]
 				},

@@ -76,7 +76,8 @@ public class Motion : MoonTools.ECS.System
                     }
                 }
 
-                if(Has<OffsetChaser>(velEntity2) && 
+                if(Has<Chased>(velEntity) &&
+                   Has<OffsetChaser>(velEntity2) && 
                   !HasOutRelation<ChasingOffSet>(velEntity2))
                 {
                     if (vel1ToVel2Distance <= distanceAway)
@@ -85,7 +86,8 @@ public class Motion : MoonTools.ECS.System
                     }
                 }
 
-                if (Has<OffsetChaser>(velEntity2) &&
+                if (Has<Chased>(velEntity) &&
+                    Has<OffsetChaser>(velEntity2) &&
                     HasOutRelation<ChasingOffSet>(velEntity2))
                 {
                     if (vel1ToVel2Distance <= distanceAway)

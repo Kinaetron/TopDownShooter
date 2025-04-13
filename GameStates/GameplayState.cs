@@ -100,7 +100,7 @@ public class GameplayState : GameState
         {
             if(entity.Identifier == "Player")
             {
-                var player = _world.CreateEntity();
+                 var player = _world.CreateEntity();
                 _world.Set(player, new Player());
                 _world.Set(player, Color.Green);
                 _world.Set(player, new Velocity(Vector2.Zero));
@@ -113,7 +113,7 @@ public class GameplayState : GameState
                 _world.Set(player, new Chased());
                 _world.Set(player, new OffsetChaseTarget());
 
-                var distance = 60.0f;
+                var distance = 40.0f;
                 var numberOfChasePoints = 10;
                 var angleStep = (2 * Math.PI / numberOfChasePoints);
 
